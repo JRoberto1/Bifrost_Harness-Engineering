@@ -11,7 +11,7 @@ Sem Bifrost:  AGENTS.md + docs/ + histórico + reexplicação = 20k+ tokens
 Com Bifrost:  last-session.md = ~500 tokens       ▓▓▓░░░░░░░░░ -97%
 ```
 
-## Dois Artefatos de Memória *(v2.1.0)*
+## Dois Artefatos de Memória
 
 O Bifrost usa dois arquivos complementares — cada um resolve um problema diferente:
 

@@ -1,6 +1,6 @@
 # CLAUDE.md — Bifrost Universal Harness
 <!-- Runtime: Claude Code -->
-<!-- Versão: 2.4.0 -->
+<!-- Versão: 1.4.0 -->
 
 > Leia este arquivo completamente antes de qualquer ação.
 > Este arquivo é específico para Claude Code — para outros runtimes use GEMINI.md ou AGENTS.md.
@@ -172,7 +172,7 @@ Outputs > 20 linhas → placeholder:
 
 ---
 
-## Context7 — Documentação Atualizada *(v2.4.0)*
+## Context7 — Documentação Atualizada
 
 Antes de implementar com qualquer biblioteca externa cuja versão importa:
 
@@ -245,4 +245,4 @@ Erro encontrado → Hashimoto:
 
 ---
 
-*Bifrost v2.4.0 — Claude Code*
+*Bifrost v1.4.0 — Claude Code*

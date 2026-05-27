@@ -4,7 +4,7 @@
 Rastrear falhas de forma estruturada antes de corrigir.
 Correção sem diagnóstico é sintoma sem causa.
 
-## Gatilhos de Ativação — SupervisorAgent *(v2.1.0)*
+## Gatilhos de Ativação — SupervisorAgent
 
 Ative esta directive **automaticamente** quando qualquer um dos 3 cenários ocorrer.
 Não espere instrução do usuário — supervisão proativa é o padrão.

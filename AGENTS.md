@@ -1,6 +1,6 @@
 # AGENTS.md — Bifrost Universal Harness
 <!-- Claude Code · Antigravity · OpenCode · Cursor · Copilot -->
-<!-- Versão: 2.4.0 -->
+<!-- Versão: 1.4.0 -->
 
 > Leia este arquivo completamente antes de qualquer ação.
 > Arquivo universal — lido por qualquer runtime.
@@ -23,7 +23,7 @@ Camada 3 — execution/       → Scripts determinísticos: FAZ
 
 ---
 
-## Hierarquia de Memória *(v2.1.0)*
+## Hierarquia de Memória
 
 ```
 L0 — AGENTS.md              → regras fixas · sempre presente · nunca descartar
@@ -37,7 +37,7 @@ Quando o contexto apertar → descarte de L4 para L0, nunca o contrário.
 
 ---
 
-## Três Tiers de Permissão *(v2.1.0)*
+## Três Tiers de Permissão
 
 ### ✅ PODE fazer sem pedir
 - Ler qualquer arquivo do projeto
@@ -77,7 +77,7 @@ Quando o contexto apertar → descarte de L4 para L0, nunca o contrário.
 
 ---
 
-## Intent Gate *(v1.4.0)*
+## Intent Gate
 
 | Intenção | Exemplos | Ação |
 |----------|----------|------|
@@ -101,7 +101,7 @@ VERIFY  → falha = volta ao Plan com contexto de erro
 
 ---
 
-## Protocolo de Output Conciso *(v1.2.0)*
+## Protocolo de Output Conciso
 
 | Situação | Formato |
 |----------|---------|
@@ -123,7 +123,7 @@ VERIFY  → falha = volta ao Plan com contexto de erro
 
 ---
 
-## Lazy Loading de Directives *(v1.2.0)*
+## Lazy Loading de Directives
 
 ```
 1. Leia .harness/index.md
@@ -152,7 +152,7 @@ head -50 src/services/auth.ts
 
 ---
 
-## Roteamento de Modelos *(v1.3.0)*
+## Roteamento de Modelos
 
 | Tarefa | Modelo |
 |--------|--------|
@@ -171,7 +171,7 @@ head -50 src/services/auth.ts
 
 ---
 
-## Princípios Karpathy *(v2.0.0)*
+## Princípios Karpathy
 
 1. Declare suposições antes de agir — nunca escolha silenciosamente
 2. Código mínimo — nada especulativo. 200 linhas quando cabem 50? Reescreva.
@@ -180,7 +180,7 @@ head -50 src/services/auth.ts
 
 ---
 
-## Viés do Avaliador *(v2.3.0)*
+## Viés do Avaliador
 
 No `/review` e ao revisar qualquer código:
 > Presuma que o código está errado até provar o contrário.
@@ -189,7 +189,7 @@ No `/review` e ao revisar qualquer código:
 
 ---
 
-## Memória de Sessão *(v1.1.0)*
+## Memória de Sessão
 
 **Ao iniciar:** leia `.harness/memory/last-session.md` se existir.
 **Ao encerrar:** salve contexto em `.harness/memory/last-session.md`.
@@ -199,7 +199,7 @@ No `/review` e ao revisar qualquer código:
 
 ---
 
-## Compressão de Histórico *(v1.2.0)*
+## Compressão de Histórico
 
 Após 8 turnos:
 ```bash
@@ -209,7 +209,7 @@ Claude Code: `/context-check --compress`
 
 ---
 
-## Context7 — Documentação Atualizada *(v2.4.0)*
+## Context7 — Documentação Atualizada
 
 Antes de implementar com qualquer biblioteca externa, verifique se a API está atualizada.
 
@@ -248,7 +248,7 @@ Referência completa: `.harness/skills/context7/SKILL.md`
 
 ---
 
-## Evolução do Harness *(v1.4.0)*
+## Evolução do Harness
 
 ```
 1. Corrija o código
@@ -262,4 +262,4 @@ Referência: `directives/harness-evolution.md`
 
 ---
 
-*Bifrost v2.3.0 — Universal*
+*Bifrost v1.4.0 — Universal*

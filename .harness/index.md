@@ -1,5 +1,5 @@
 # .harness/index.md — Índice Central do Bifrost
-<!-- v2.0.0 — Atualizado com Sprints A+B+C -->
+<!-- v1.4.0 -->
 
 > Leia este arquivo PRIMEIRO. Carregue apenas o que tiver match com a tarefa.
 > Regra: se não há match explícito, execute sem carregar directive extra.

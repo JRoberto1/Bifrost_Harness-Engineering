@@ -1,6 +1,6 @@
 # GEMINI.md — Bifrost Universal Harness
 <!-- Runtime: Antigravity · Gemini CLI · OpenCode -->
-<!-- Versão: 2.4.0 -->
+<!-- Versão: 1.4.0 -->
 
 > Leia este arquivo antes de qualquer ação.
 > Este arquivo é específico para Antigravity e runtimes baseados em Gemini.
@@ -101,7 +101,7 @@ VERIFY  → máximo 3 linhas de resposta
 
 ---
 
-## Documentação Atualizada — Alternativa ao Context7 *(v2.4.0)*
+## Documentação Atualizada — Alternativa ao Context7
 
 O Antigravity não tem suporte nativo ao Context7.
 Use a busca web integrada como substituto:
@@ -231,4 +231,4 @@ Erro encontrado → Hashimoto:
 
 ---
 
-*Bifrost v2.4.0 — Antigravity / Gemini*
+*Bifrost v1.4.0 — Antigravity / Gemini*

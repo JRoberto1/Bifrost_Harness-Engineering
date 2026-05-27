@@ -26,7 +26,7 @@ Se qualquer item for FAIL → corrija antes de continuar.
 - [ ] Inputs validados nos endpoints novos
 - [ ] `npm audit` sem vulnerabilidades críticas
 
-### 📄 Document Release *(v2.5.0)*
+### 📄 Document Release
 
 **Verifique cada doc abaixo. Se está desatualizado → atualize antes de continuar.**
 

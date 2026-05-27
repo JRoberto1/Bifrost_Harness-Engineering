@@ -1,321 +1,117 @@
-<div align="center">
+[![npm](https://img.shields.io/npm/v/harness-engineering?style=flat-square&color=000)](https://www.npmjs.com/package/harness-engineering) [![MIT](https://img.shields.io/badge/license-MIT-blue?style=flat-square)](LICENSE) [![v1.4.0](https://img.shields.io/badge/versão-1.4.0-purple?style=flat-square)](#changelog) [![runtimes](https://img.shields.io/badge/runtimes-Claude%20Code%20%7C%20Antigravity%20%7C%20OpenCode-green?style=flat-square)](#compatibilidade)
 
-```
-██████╗ ██╗███████╗██████╗  ██████╗ ███████╗████████╗
-██╔══██╗██║██╔════╝██╔══██╗██╔═══██╗██╔════╝╚══██╔══╝
-██████╔╝██║█████╗  ██████╔╝██║   ██║███████╗   ██║
-██╔══██╗██║██╔══╝  ██╔══██╗██║   ██║╚════██║   ██║
-██████╔╝██║██║     ██║  ██║╚██████╔╝███████║   ██║
-╚═════╝ ╚═╝╚═╝     ╚═╝  ╚═╝ ╚═════╝ ╚══════╝   ╚═╝
-```
+# Bifrost
 
 **O Sistema Operacional para Agentes de IA.**
-**Um comando. Qualquer runtime. Zero infraestrutura.**
-
-[![npm](https://img.shields.io/npm/v/harness-engineering?style=flat-square&color=000)](https://www.npmjs.com/package/harness-engineering)
-[![MIT](https://img.shields.io/badge/license-MIT-blue?style=flat-square)](LICENSE)
-[![v2.5.0](https://img.shields.io/badge/versão-2.5.0-purple?style=flat-square)](#changelog)
-[![runtimes](https://img.shields.io/badge/runtimes-Claude%20Code%20%7C%20Antigravity%20%7C%20OpenCode-green?style=flat-square)](#compatibilidade)
-
-</div>
+Um harness de engenharia que torna agentes de IA confiáveis em produção.
 
 ---
 
-## O problema que ninguém fala
+## O Problema
 
-Você dá uma tarefa ao Claude Code. Ele começa bem — lê arquivos, escreve código, parece produtivo. Depois algo vai errado. Ele pula um passo. Quebra um teste. Diz "feito" mas nada funciona. Você gasta mais tempo limpando do que se tivesse feito você mesmo.
+Você dá uma tarefa ao Claude Code. Ele começa bem — lê arquivos, escreve código, parece produtivo.
+Depois algo vai errado: pula um passo, quebra um teste, diz "feito" mas nada funciona.
 
-> *"Às vezes você empilha lixo no contexto e impede o agente de ter eficiência."*
+Isso não é problema do modelo. É problema de harness.
 
-**Isso não é problema do modelo. É problema de harness.**
+> Mesmo modelo (Opus 4.5) · Mesmo prompt ("build a 2D retro game editor")
+>
+> ❌ Sem harness → $9 · 20 minutos · não funcionou
+> ✅ Com harness → $200 · 6 horas · jogo jogável e funcional
 
-A Anthropic demonstrou isso em experimento controlado:
-
-```
-Mesmo modelo (Opus 4.5) · Mesmo prompt ("build a 2D retro game editor")
-
-❌ Sem harness  →  $9 · 20 minutos · não funcionou
-✅ Com harness  →  $200 · 6 horas · jogo jogável e funcional
-```
-
-> *"O gargalo se moveu. Não é mais escrever código.*
-> *É validar comportamento, capturar regressões, manter confiabilidade."*
+O gargalo não é mais escrever código. É validar comportamento, capturar regressões, manter confiabilidade.
 
 ---
 
-## O que é o Bifrost
+## O que é Bifrost
 
-Na mitologia nórdica, **Bifrost** é a ponte que conecta todos os mundos.
-
-```
-╔══════════════════════════════════════════════════════╗
-║                     BIFROST                          ║
-║                                                      ║
-║   Claude Code  ─────┐                                ║
-║   Antigravity  ─────┼──── AGENTS.md ──── seu projeto ║
-║   OpenCode     ─────┤     CLAUDE.md                  ║
-║   Cursor       ─────┘     GEMINI.md                  ║
-║                                                      ║
-║   Um harness. Qualquer runtime. Mesmas regras.       ║
-╚══════════════════════════════════════════════════════╝
-```
+Na mitologia nórdica, Bifrost é a ponte que conecta todos os mundos.
 
 ```
-Prompt Engineering    →  você funciona
-Context Engineering   →  você é consistente
-Harness Engineering   →  você é confiável em produção
+Claude Code  ─────┐
+Antigravity  ─────┼──── AGENTS.md ──── seu projeto
+OpenCode     ─────┘     CLAUDE.md
+                        GEMINI.md
+```
+
+Um harness. Qualquer runtime. Mesmas regras.
+
+```
+Prompt Engineering  →  você funciona
+Context Engineering →  você é consistente
+Harness Engineering →  você é confiável em produção
 ```
 
 ---
 
 ## Instalação
 
-> Requisito: [Node.js 16+](https://nodejs.org)
-
 ```bash
 npx harness-engineering
+npx harness-engineering check                       # verifica integridade
+npx harness-engineering stats                       # métricas de sessões e tokens
+npx harness-engineering skill --bundle essentials   # instala skills essenciais
+npx harness-engineering skill --list                # ver todas disponíveis
 ```
+
+---
+
+## Estrutura do Projeto
+
+```
+.
+├── AGENTS.md              # Instrução universal — qualquer runtime
+├── CLAUDE.md              # Instrução específica para Claude Code
+├── GEMINI.md              # Instrução específica para Antigravity/Gemini
+├── .env.example           # Template de variáveis de ambiente
+│
+├── .harness/              # Orquestração interna do harness
+│   ├── index.md           # Índice de directives (L1 da hierarquia)
+│   ├── VERSION            # Versão canônica do harness
+│   ├── config.json        # Paths protegidos e permitidos
+│   ├── doe/               # Diretrizes · Orquestração · Execução
+│   ├── domains/           # Regras por domínio de negócio
+│   ├── pev/               # Protocolo Plan-Execute-Verify
+│   ├── quality-gates/     # Pre-commit · Agent Judge
+│   └── skills/            # Skills instaladas
+│
+├── directives/            # SOPs — o QUE o agente deve fazer
+├── execution/             # Scripts determinísticos — FAZ de forma confiável
+├── docs/                  # Arquitetura e documentação do projeto
+├── scripts/               # Utilitários: init, adopt, health-check
+├── harness-template/      # Template base para novos projetos
+└── community-skills/      # Skills contribuídas pela comunidade
+```
+
+---
+
+## Como Usar
+
+**Prompt universal para qualquer runtime:**
+
+```
+Leia AGENTS.md (ou CLAUDE.md / GEMINI.md) completamente antes de qualquer ação.
+```
+
+**Comandos Claude Code:**
+
+```
+/spec           → escreva a spec antes de qualquer código
+/plan           → decomponha em tarefas verificáveis
+/review         → quality gate com viés do avaliador
+/ship           → checklist completo antes de deploy
+/wrap-session   → encerra sessão e salva contexto
+/brief-session  → retoma sessão (~500 tokens vs 20k+)
+/context-check  → audita e comprime contexto
+```
+
+**Scripts de setup:**
 
 ```bash
-npx harness-engineering check                     # verifica integridade
-npx harness-engineering stats                     # métricas de sessões e tokens
-npx harness-engineering skill --bundle essentials # instala skills
-npx harness-engineering skill --list              # ver todas disponíveis
+bash scripts/init-project.sh      # inicializa harness em projeto novo
+bash scripts/adopt-project.sh     # adota projeto existente
+bash scripts/health-check.sh      # verifica saúde do harness
 ```
-
----
-
-## Arquitetura de 3 Camadas
-
-```mermaid
-flowchart TD
-    User(["👤 Usuário"])
-    subgraph Runtime["Runtime — Claude Code · Antigravity · OpenCode"]
-        AGENTS["📄 AGENTS.md · CLAUDE.md · GEMINI.md"]
-    end
-    subgraph Bifrost["🌉 BIFROST"]
-        C1["Camada 1 — directives/\nSOPs: o QUE fazer"]
-        C2["Camada 2 — .harness/doe/\nOrquestração: COMO agir"]
-        C3["Camada 3 — execution/\nScripts: FAZ de forma confiável"]
-        C1 --> C2 --> C3
-    end
-    User --> Runtime --> Bifrost
-    Bifrost --> Output(["✅ Resultado confiável"])
-```
-
----
-
-## Harness não é só para código
-
-```
-Agente jurídico     =  modelo + regras CC/2002 + templates  + verificador
-Agente financeiro   =  modelo + regras fiscais + schemas    + auditoria
-Agente imobiliário  =  modelo + histórico      + contratos  + alertas
-Agente educacional  =  modelo + currículo      + progresso  + avaliação
-```
-
----
-
-## Ciclo SDLC Completo
-
-```mermaid
-flowchart LR
-    S(["/spec"]) --> P(["/plan"])
-    P --> B(["Build"])
-    B --> R(["/review"])
-    R -->|aprovado| SH(["/ship"])
-    R -->|reprovado| B
-```
-
-```
-/spec    → escreva a spec antes de qualquer código
-/plan    → decomponha em tarefas verificáveis
-/review  → quality gate com viés do avaliador
-/ship    → checklist completo antes de deploy
-```
-
----
-
-## Memória entre Sessões
-
-```mermaid
-sequenceDiagram
-    participant U as Usuário
-    participant A as Agente
-    participant M as .harness/memory/
-
-    U->>A: /brief-session
-    A->>M: lê last-session.md (~500 tokens)
-    M-->>A: contexto da sessão anterior
-    A-->>U: briefing resumido
-    Note over U,A: trabalho normal...
-    U->>A: /wrap-session
-    A->>M: salva last-session.md + handoff.json
-    A-->>U: ✓ contexto salvo
-```
-
-**Dois artefatos complementares:**
-
-| Arquivo | Para quê |
-|---------|---------|
-| `last-session.md` | Contexto de conversa — retomar uma sessão interrompida |
-| `handoff.json` | Estado estruturado do git — iniciar novo agente em feature longa |
-| `claude-progress.txt` | Progresso de features — vinculado ao histórico de commits |
-
-**Claude Code:**
-```
-/wrap-session      ← encerra, salva last-session.md + handoff.json
-/brief-session     ← retoma com ~500 tokens em vez de 20k+
-```
-
-**Outros runtimes:**
-```
-python execution/handoff.py --create --tema "auth-jwt"
-python execution/handoff.py --brief
-```
-
----
-
-## Economia de Tokens
-
-| Técnica | Redução | Como |
-|---------|---------|------|
-| Lazy Loading | -80% | `.harness/index.md` → só a directive certa |
-| Progressive Disclosure | -70% | `grep` em vez de `cat` |
-| Observation Masking | -52% | `[Logs — 847 linhas \| FALHA \| timeout 42]` |
-| Roteamento de Modelos | até -95% | Haiku / Sonnet / Opus por tipo de tarefa |
-| Compressão de Histórico | -45% | `compress-history.py --auto` após 8 turnos |
-
----
-
-## Hierarquia de Memória
-
-```
-L0 — AGENTS.md              → sempre presente · nunca descartar
-L1 — .harness/index.md      → sempre presente · nunca descartar
-L2 — .harness/domains/      → carregado sob demanda
-L3 — directives/ · skills/  → carregado por match
-L4 — memory/last-session.md → descartável após /wrap-session
-```
-
----
-
-## Três Tiers de Permissão
-
-```
-✅ PODE sem pedir    → ler arquivos, rodar testes, escrever em allowed_paths
-⚠️  PERGUNTAR antes  → deletar arquivos, instalar deps, git commit/push, APIs externas
-🚫 NUNCA            → protected_paths, reset --hard, credenciais hardcoded
-```
-
-Validação programática:
-```bash
-python execution/validate_action.py --action write_file --target src/auth.ts
-# {"status": "VALID", "tier": "green"}
-
-python execution/validate_action.py --action delete_file --target .env
-# {"status": "INVALID", "tier": "red"}
-
-python execution/validate_action.py --list-rules
-```
-
----
-
-## Princípios Karpathy
-
-```
-1. Declare suposições antes de agir — nunca escolha silenciosamente
-2. Código mínimo — nada especulativo
-3. Mudanças cirúrgicas — toque só o que deve
-4. Transforme tarefas em critérios verificáveis
-```
-
----
-
-## Viés do Avaliador
-
-```
-"Presuma que o código está errado até que se prove o contrário."
-"Se não encontrou nenhum problema → revise de novo."
-Frase proibida: "O código parece correto."
-```
-
----
-
-## SupervisorAgent — Zero custo no caminho feliz
-
-Ativa `directives/diagnose.md` automaticamente:
-
-```
-Gatilho 1 — Erro Explícito    → pare · diagnostique · não tente outra abordagem
-Gatilho 2 — Anomalia          → pare · sinalize [ANOMALIA] · diagnostique
-Gatilho 3 — Desvio do Plano   → pare · reporte · aguarde instrução
-```
-
----
-
-## Self-Correction Loop
-
-```bash
-# Analisa erros e atualiza harness-evolution.md automaticamente
-python execution/self-correction.py --auto
-
-# Com PR automático (requer GitHub CLI)
-python execution/self-correction.py --auto --open-pr
-```
-
----
-
-## Métricas
-
-```bash
-npx harness-engineering stats
-```
-
-Mostra: sessões, tokens economizados, taxa de sucesso, aprendizados Hashimoto, saúde do harness.
-
----
-
-## Quality Gate
-
-| Verificação | O que bloqueia |
-|-------------|----------------|
-| 🔑 Segredos | passwords, api_keys, tokens hardcoded |
-| 📝 `console.log` | logs soltos em JS/TS |
-| ⚠️ TypeScript `any` | sem `// harness-ignore` |
-| 💰 Float monetário | valores monetários em ponto flutuante |
-| 🔒 `.env` | commit sem ser `.example` |
-| 🛡️ Protected paths | definidos em `.harness/config.json` |
-| 🔄 Auto-sync | AGENTS.md → CLAUDE.md + GEMINI.md |
-| 🧑‍⚖️ Agent Judge | Haiku audita directives (opcional, requer API key) |
-
----
-
-## Regra de Hashimoto
-
-> *Cada bug que não vira regra do harness é um bug que vai acontecer de novo.*
-
-```
-1. Corrija o código
-2. Identifique onde o harness falhou
-3. Atualize a directive correspondente
-4. Commit: harness(tipo): descrição
-```
-
-Automático: `python execution/self-correction.py --auto`
-
----
-
-## Community Skills
-
-```bash
-npx harness-engineering skill nextjs         # Next.js 14+ App Router
-npx harness-engineering skill python-fastapi # FastAPI + Pydantic v2
-npx harness-engineering skill lgpd           # Conformidade LGPD Brasil
-npx harness-engineering skill --bundle sdlc  # ciclo completo de entrega
-```
-
-> Contribua: [bifrost-community-skills](https://github.com/JRoberto1/bifrost-community-skills)
 
 ---
 
@@ -330,95 +126,61 @@ npx harness-engineering skill --bundle sdlc  # ciclo completo de entrega
 
 ---
 
-## Changelog
+## Domínios
 
-### v2.5.0
-- ✨ `directives/office-hours.md` — 6 perguntas de reframing antes de implementar
-- ✨ `execution/handoff.py` — WIP commits com contexto estruturado (`--wip` / `--restore`)
-- ✨ `/ship` — Document Release: verifica docs sincronizados antes de deploy
-- 📝 README — citação "lixo no contexto" na abertura do problema
+Harness não é só para código:
 
-### v2.3.0
-- ✨ Viés do Avaliador no `/review` e `agents/code-reviewer.md`
-- ✨ `execution/validate_action.py` — validação programática dos 3 tiers
-- ✨ `execution/handoff.py` — handoff JSON estruturado para novo agente
-- ✨ `execution/self-correction.py` — `--open-pr` para PR automático
-
-### v2.2.0
-- ✨ `npx harness-engineering stats` — métricas de sessões e tokens
-- ✨ `execution/self-correction.py` — Hashimoto automático
-- ✨ `.harness/quality-gates/agent-judge.sh` — auditor Haiku
-- ✨ Community Skills — Next.js, FastAPI, LGPD
-
-### v2.1.0
-- ✨ Hierarquia de memória L0→L4
-- ✨ Três Tiers de Permissão
-- ✨ SupervisorAgent — 3 gatilhos em `directives/diagnose.md`
-- ✨ `claude-progress.txt` — progresso vinculado ao git
-
-### v2.0.0
-- ✨ Camada 2 (`.harness/doe/`) visível na arquitetura
-- ✨ Intent Gate · Princípios Karpathy · Frases Proibidas
-- ✨ Ciclo SDLC: `/spec` `/plan` `/review` `/ship`
-- ✨ `directives/diagnose.md` · `directives/spec-driven.md`
-- ✨ `agents/code-reviewer.md` · `agents/security-auditor.md`
-- ✨ `.harness/config.schema.json` · `scripts/sync-mirrors.sh`
-- ✨ `cli.js` v2.0.0 completo
-
-### v1.4.0
-- ✨ Nome: **Bifrost** · README com identidade nórdica
-- ✨ `.harness/config.json` — protected/allowed paths
-- ✨ `directives/harness-evolution.md`
-- ✨ `scripts/sync-mirrors.sh`
-
-### v1.3.0
-- ✨ Progressive Disclosure · Observation Masking
-- ✨ Roteamento de Modelos · Sub-agentes · `/model-select`
-
-### v1.2.0
-- ✨ Lazy loading · Output conciso · Budget por tarefa
-- ✨ `compress-history.py` · `/context-check`
-
-### v1.1.0
-- ✨ Memória persistente · `/wrap-session` · `/brief-session`
-
-### v1.0.0
-- Estrutura base · DOE · PEV · 4 domínios · quality gate · npm
+| Domínio | Componentes | Arquivo |
+|---------|-------------|---------|
+| SaaS Web | modelo + componentes + validação | `.harness/domains/saas.md` |
+| API / Backend | modelo + esquemas + auditoria | `.harness/domains/api.md` |
+| Automação | modelo + scripts + monitoramento | `.harness/domains/automation.md` |
+| Jurídico / Financeiro | modelo + regras + conformidade | `.harness/domains/juridico-financeiro.md` |
 
 ---
 
 ## Princípios
 
-```
- 1. Agente = Modelo + Harness
- 2. Marcha dos Noves — o harness resolve
- 3. Directives são documentos vivos
- 4. Scripts determinísticos > agente improvisando
- 5. Verificador com contexto limpo
- 6. Sucesso silencioso, falha barulhenta
- 7. Hashimoto — cada erro melhora o harness
- 8. Memória persistente          · v1.1.0
- 9. Contexto mínimo necessário   · v1.2.0
-10. Modelo certo para cada tarefa · v1.3.0
-11. Intenção antes de execução    · v2.0.0
-12. Spec antes de código          · v2.0.0
-13. Ceticismo ativo no review     · v2.3.0
-14. Validação antes da ação       · v2.3.0
-```
+1. Agente = Modelo + Harness
+2. A Marcha dos Noves — o harness resolve o que o modelo não garante
+3. Directives são documentos vivos — atualize sempre
+4. Scripts determinísticos > agente improvisando
+5. Verificador com contexto limpo
+6. Sucesso silencioso, falha barulhenta
+7. Hashimoto — cada erro melhora o harness
+8. Memória persistente entre sessões
+9. Contexto mínimo necessário
+10. Modelo certo para cada tarefa
+11. Intenção antes de execução (Intent Gate)
+12. Spec antes de código
+13. Ceticismo ativo no review (Viés do Avaliador)
+14. Validação antes da ação (Três Tiers)
+
+---
+
+## Changelog
+
+### v1.4.0 — atual
+- Identidade Bifrost · `.harness/config.json` · protected/allowed paths
+- Arquitetura DOE completa (`diretrizes.md` · `orquestracao.md` · `execucao.md`)
+- Intent Gate · SDLC completo (`/spec` `/plan` `/review` `/ship`)
+- Três Tiers de Permissão · Hierarquia de Memória L0→L4
+- Viés do Avaliador · `execution/validate_action.py`
+- `execution/handoff.py` · `execution/self-correction.py --open-pr`
+- Community Skills (Next.js, FastAPI, LGPD) · Agent Judge · Context7
+
+### v1.2.0
+- Lazy loading de directives via `.harness/index.md`
+- Output conciso · Observation Masking · Progressive Disclosure
+- `execution/compress-history.py` · `/context-check`
+
+### v1.0.0
+- Estrutura base: DOE · PEV · 4 domínios de negócio
+- Quality gate com pre-commit · Publicação npm
 
 ---
 
 ## Licença
 
 MIT — use, modifique, distribua, contribua.
-
----
-
-<div align="center">
-
-*Na mitologia nórdica, Bifrost é a ponte que conecta todos os mundos.*
-*Aqui, conecta seus projetos a qualquer agente de IA.*
-
-**[⭐ Star](https://github.com/JRoberto1/Bifrost_Harness-Engineering) · [📦 npm](https://www.npmjs.com/package/harness-engineering) · [🤝 Community](https://github.com/JRoberto1/bifrost-community-skills)**
-
-</div>
+Contribua com skills: [bifrost-community-skills](https://github.com/JRoberto1/bifrost-community-skills)
