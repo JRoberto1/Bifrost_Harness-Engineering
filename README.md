@@ -48,7 +48,6 @@ Harness Engineering →  você é confiável em produção
 ```bash
 npx harness-engineering
 npx harness-engineering check                       # verifica integridade
-npx harness-engineering stats                       # métricas de sessões e tokens
 npx harness-engineering skill --bundle essentials   # instala skills essenciais
 npx harness-engineering skill --list                # ver todas disponíveis
 ```
