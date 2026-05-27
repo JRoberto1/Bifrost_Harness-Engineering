@@ -27,8 +27,8 @@ Camada 3 — execution/       → Scripts determinísticos: FAZ
 
 ```
 L0 — GEMINI.md              → sempre presente · nunca descartar
-L1 — .harness/index.md      → sempre presente · nunca descartar
-L2 — .harness/domains/      → carregado sob demanda
+L1 — .harness/index.md      → índice leve · sempre presente · nunca descartar
+L2 — .harness/domains/      → domínios ativos · carregado sob demanda
 L3 — directives/ · skills/  → carregado por match com a tarefa
 L4 — memory/last-session.md → contexto da sessão · descartável após wrap-session
 ```
