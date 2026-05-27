@@ -26,6 +26,7 @@ HEADER = """<!-- AUTO-GERADO por scripts/build-harness.py — NÃO EDITE MANUALM
 """
 
 FOOTER = """
+
 ---
 *Atualizado automaticamente. Para regenerar: `python scripts/build-harness.py`*
 """
