@@ -175,6 +175,25 @@ python execution/handoff.py --brief                          # retoma em novo ag
 
 ---
 
+## Regra de Ouro
+
+Nunca peça ao agente para fazer o que um script determinístico pode fazer.
+O agente é probabilístico. Scripts são confiáveis.
+
+---
+
+## Arquivos por Camada
+
+| Camada | Arquivos | Responsabilidade |
+|--------|----------|-----------------|
+| 0 (fixo) | `AGENTS.md` · `.harness/index.md` | Regras permanentes — nunca descartar |
+| 1 | `directives/*.md` | SOPs — carregados por match |
+| 2 | `.harness/domains/*.md` · `.harness/skills/*.md` | Contexto de domínio — sob demanda |
+| 3 | `execution/*.py` · `scripts/*.sh` | Execução determinística |
+| 4 | `.harness/memory/last-session.md` | Estado efêmero — descartável |
+
+---
+
 ## O que NUNCA Fazer
 
 | Proibido | Motivo |

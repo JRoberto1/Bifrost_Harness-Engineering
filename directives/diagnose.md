@@ -1,108 +1,49 @@
-# Directive: Diagnóstico Sistemático de Falhas
+---
+id: diagnose
+version: 1.0.0
+triggers: ["por que", "quebrou", "erro", "falhou", "não funciona", "debug", "investigar"]
+domain: universal
+estimated_tokens: 600
+---
+
+# Directive: Diagnose
 
 ## Objetivo
-Rastrear falhas de forma estruturada antes de corrigir.
-Correção sem diagnóstico é sintoma sem causa.
+Investigar falhas de forma sistemática sem consumir contexto desnecessário.
 
-## Gatilhos de Ativação — SupervisorAgent
+## Protocolo de Investigação (4 passos)
 
-Ative esta directive **automaticamente** quando qualquer um dos 3 cenários ocorrer.
-Não espere instrução do usuário — supervisão proativa é o padrão.
+### Passo 1 — Isolar o sintoma
+Descreva o comportamento observado em 1 linha.
+NÃO tente corrigir ainda.
 
-### Gatilho 1 — Erro Explícito
+### Passo 2 — Ler antes de agir
+Antes de qualquer modificação:
+- `grep -rn "termo relevante" src/`
+- `head -30` do arquivo suspeito
+- `git log --oneline -10` (o que mudou recentemente?)
+
+### Passo 3 — Hipótese única
+Formule UMA hipótese de causa raiz.
+Se houver mais de uma → escolha a mais provável e teste primeiro.
+
+### Passo 4 — Teste mínimo
+Crie o menor teste possível que confirme ou refute a hipótese.
+Se confirmada → corrija e aplique Hashimoto.
+Se refutada → volte ao Passo 2 com nova informação.
+
+## Regras
+- Nunca "tente várias coisas" ao mesmo tempo
+- Nunca modifique mais de 1 arquivo por hipótese
+- Se após 3 hipóteses a causa ainda não for clara → use sub-agente com contexto limpo
+- Marque qualquer suposição com `[VERIFICAR: motivo]`
+
+## Output esperado
+
 ```
-Condição: erro em ferramenta, execução de código, ou script retorna status != success
-Exemplos: ModuleNotFoundError · TypeError · git push rejected · npm install failed
-Ação:     pare imediatamente · não tente outra abordagem · execute o protocolo abaixo
+SINTOMA:    [1 linha]
+HIPÓTESE:   [1 linha]
+TESTE:      [comando ou ação]
+RESULTADO:  CONFIRMADO | REFUTADO
+AÇÃO:       [correção ou próxima hipótese]
 ```
-
-### Gatilho 2 — Anomalia de Comportamento
-```
-Condição: resultado diferente do esperado sem erro explícito
-Exemplos: teste passa mas comportamento errado · arquivo criado no lugar errado
-          output vazio quando deveria ter conteúdo · loop de retry sem progresso
-Ação:     pare · sinalize [ANOMALIA] · execute o protocolo abaixo
-```
-
-### Gatilho 3 — Desvio do Plano
-```
-Condição: agente está fazendo algo diferente do PLAN aprovado
-Exemplos: modificando arquivo fora do escopo · adicionando feature não planejada
-          mudando arquitetura sem aprovação · saindo dos tiers de permissão
-Ação:     pare imediatamente · reporte o desvio · aguarde instrução
-```
-
-> **Custo:** zero tokens no caminho feliz — só ativa quando algo quebra.
-> Sucesso silencioso, falha barulhenta.
-
-## Quando Usar (casos manuais)
-- Erro inesperado em produção ou testes
-- Comportamento que "não deveria acontecer"
-- Falha recorrente sem resolução duradoura
-- Regressão após deploy
-
-## Protocolo de Diagnóstico (5 Passos)
-
-### Passo 1 — Reproduzir
-```
-Qual input/condição causa o erro?
-O erro é determinístico ou intermitente?
-Em qual ambiente ocorre? (dev / staging / prod)
-```
-Não avance sem reprodução confirmada.
-
-### Passo 2 — Localizar
-```
-Em qual camada ocorre?
-  Camada 1 (directive incorreta)?
-  Camada 2 (decisão do agente)?
-  Camada 3 (script com bug)?
-
-Qual arquivo/função específica?
-Qual linha do stack trace?
-```
-
-### Passo 3 — Reduzir
-```
-Qual é o menor exemplo que reproduz o problema?
-Quais variáveis podem ser eliminadas?
-O problema ocorre com dados mínimos?
-```
-
-### Passo 4 — Corrigir
-```
-Corrija apenas o que o diagnóstico apontou.
-Não corrija outros problemas encontrados no caminho
-(abra issues separadas para eles).
-```
-
-### Passo 5 — Proteger (Hashimoto)
-```
-Escreva um teste que falharia antes da correção.
-Atualize a directive para prevenir recorrência.
-Adicione ao quality gate se for verificável automaticamente.
-```
-
-## Formato de Saída
-
-```markdown
-## Diagnóstico: [descrição do problema]
-
-**Reprodução:** [input/condição exata]
-**Camada:** [1 / 2 / 3]
-**Localização:** [arquivo:linha]
-**Causa raiz:** [o que realmente causou]
-**Correção aplicada:** [o que foi mudado]
-**Proteção:** [teste adicionado / directive atualizada / quality gate]
-```
-
-## Anti-Rationalization
-
-❌ "Sei qual é o problema, vou direto corrigir" → Pule diagnóstico = corrija sintoma, não causa
-❌ "Não consigo reproduzir mas vou corrigir assim mesmo" → Correção sem reprodução é chute
-❌ "Já corrigi, não preciso escrever teste" → Sem teste = sem proteção contra regressão
-❌ "É um caso muito específico, não vai acontecer de novo" → Se aconteceu uma vez, vai acontecer de novo
-
-## Aprendizados
-<!-- Atualize aqui com padrões de falha recorrentes -->
-- [data] [padrão identificado e proteção adicionada]

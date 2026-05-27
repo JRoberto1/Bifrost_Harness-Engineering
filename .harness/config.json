@@ -12,7 +12,8 @@
     "k8s/",
     ".github/workflows/",
     "*.pem",
-    "*.key"
+    "*.key",
+    ".harness/config.json"
   ],
 
   "allowed_paths": [
@@ -24,10 +25,18 @@
     "directives/",
     "execution/",
     "docs/",
+    "scripts/",
     "AGENTS.md",
     "CLAUDE.md",
     "GEMINI.md"
   ],
+
+  "runtime_files": {
+    "claude-code": "CLAUDE.md",
+    "antigravity": "GEMINI.md",
+    "opencode": "AGENTS.md",
+    "cursor": "AGENTS.md"
+  },
 
   "tech_choice_mode": "ask",
 
