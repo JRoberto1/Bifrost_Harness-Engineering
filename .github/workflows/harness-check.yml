@@ -129,6 +129,20 @@ jobs:
             echo "✓ $f"
           done
 
+      - name: Verifica suporte OpenCode (opcional)
+        run: |
+          echo "🔷 Verificando suporte OpenCode..."
+          if [ -f "scripts/overrides/opencode-overrides.md" ]; then
+            echo "✓ scripts/overrides/opencode-overrides.md"
+          else
+            echo "⚠ scripts/overrides/opencode-overrides.md ausente (opcional)"
+          fi
+          if [ -f ".opencode/instructions.md" ]; then
+            echo "✓ .opencode/instructions.md"
+          else
+            echo "⚠ .opencode/instructions.md ausente (opcional)"
+          fi
+
       - name: Verifica se index.md está atualizado
         run: |
           echo "📋 Verificando se .harness/index.md está sincronizado com directives/..."
@@ -189,4 +203,4 @@ jobs:
         run: |
           echo ""
           echo "✅ Bifrost íntegro — todos os checks passaram"
-          echo "   núcleo · sincronização · suporte · index · segredos · config · TypeScript"
+          echo "   núcleo · sincronização · suporte · opencode · index · segredos · config · TypeScript"

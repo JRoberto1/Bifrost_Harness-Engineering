@@ -136,7 +136,7 @@ bash scripts/health-check.sh      # verifica saúde do harness
 |---------|---------|------|---------|--------|
 | Claude Code | `CLAUDE.md` | `/spec /plan /review /ship` | `/wrap-session` | `/context-check` |
 | Antigravity | `GEMINI.md` | prompt direto | manual | script Python |
-| OpenCode | `AGENTS.md` | prompt direto | manual | script Python |
+| OpenCode | `AGENTS.md` + `.opencode/instructions.md` | prompt direto | last-session.json | script Python |
 | Cursor | `.cursorrules` | prompt direto | manual | — |
 
 ---

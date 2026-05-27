@@ -233,11 +233,16 @@ def main() -> None:
                 errors = True
             else:
                 print(f"✓ {path.name} em sync")
+        opencode_overrides = ROOT / "scripts" / "overrides" / "opencode-overrides.md"
+        if opencode_overrides.exists():
+            print("✓ OpenCode: usa AGENTS.md diretamente")
+        else:
+            print("⚠ scripts/overrides/opencode-overrides.md ausente")
         sys.exit(1 if errors else 0)
 
     CLAUDE_PATH.write_text(claude_out, encoding="utf-8")
     GEMINI_PATH.write_text(gemini_out, encoding="utf-8")
-    print("✓ CLAUDE.md gerado · ✓ GEMINI.md gerado")
+    print("✓ CLAUDE.md gerado · ✓ GEMINI.md gerado · ✓ OpenCode: usa AGENTS.md diretamente")
 
 
 if __name__ == "__main__":
