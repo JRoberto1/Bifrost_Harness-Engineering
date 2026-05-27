@@ -1,6 +1,6 @@
 {
   "name": "harness-engineering",
-  "version": "2.0.2",
+  "version": "2.0.3",
   "description": "Bifrost — Harness Engineering universal. Um comando. Qualquer runtime. Zero infraestrutura.",
   "bin": {
     "harness-engineering": "bin/cli.js"
@@ -23,7 +23,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/JRoberto1/harness-template.git"
+    "url": "git+https://github.com/JRoberto1/Bifrost_Harness-Engineering.git"
   },
   "homepage": "https://github.com/JRoberto1/harness-template#readme",
   "engines": {

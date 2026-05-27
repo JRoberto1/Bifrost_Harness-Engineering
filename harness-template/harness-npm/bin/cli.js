@@ -1,14 +1,15 @@
 #!/usr/bin/env node
 // ============================================================
 // Bifrost — Harness Engineering CLI
-// v2.0.2 — hotfix: VERSION sync + remove dependência de supply chain externo
+// v2.0.3 — upgrade command, session schema v1, next steps atualizados
 // ============================================================
 
 const fs   = require("fs");
 const path = require("path");
+const https = require("https");
 const readline = require("readline");
 
-const VERSION = "2.0.2";
+const VERSION = "2.0.3";
 const TARGET  = process.cwd();
 
 const c = {
@@ -154,7 +155,26 @@ const CONFIG_JSON = `{
 
 const INDEX_MD = `# .harness/index.md — Índice Central do Bifrost\n<!-- v${VERSION} -->\n\n> Leia PRIMEIRO. Carregue apenas o que tiver match.\n\n## Directives\n\n| Arquivo | Palavras-chave | Quando carregar |\n|---------|---------------|----------------|\n| \`directives/session-memory.md\` | sessão, memória, retomar, parar, continuar | ao iniciar/encerrar |\n| \`directives/context-management.md\` | tokens, contexto, compressão, budget | ao gerenciar tokens |\n| \`directives/subagent-dispatch.md\` | subagente, delegar, tarefa pesada | tarefa > 20k tokens |\n| \`directives/observation-masking.md\` | log longo, output longo, masking | output > 20 linhas |\n| \`directives/harness-evolution.md\` | evolução, hashimoto, melhoria, erro recorrente | ao melhorar harness |\n| \`directives/diagnose.md\` | diagnóstico, investigar, por que quebrou | ao investigar falhas |\n| \`directives/spec-driven.md\` | spec, especificação, requisitos, antes de código | ao iniciar feature |\n\n## Domínios\n\n| Arquivo | Palavras-chave |\n|---------|---------------|\n| \`.harness/domains/saas.md\` | frontend, UI, autenticação, JWT, produto web |\n| \`.harness/domains/api.md\` | endpoint, API, REST, backend, rota |\n| \`.harness/domains/automation.md\` | script, automação, batch, pipeline |\n| \`.harness/domains/juridico-financeiro.md\` | contrato, cláusula, LGPD, valor, pagamento |\n\n## Camada 2 — DOE\n\n| Arquivo | Quando usar |\n|---------|------------|\n| \`.harness/doe/diretrizes.md\` | ao configurar system prompt global |\n| \`.harness/doe/orquestracao.md\` | ao montar prompt do planejador |\n| \`.harness/doe/execucao.md\` | ao montar prompt de subagente |\n`;
 
-const LAST_SESSION = `# Última Sessão\n\n> Use /wrap-session ao encerrar · /brief-session ao retomar\n\nNenhuma sessão registrada ainda.\n`;
+const LAST_SESSION_JSON = `{
+  "$schema": "https://bifrost.harness/session-schema/v1",
+  "session_id": "",
+  "timestamp": "",
+  "runtime": "",
+  "harness_version": "${VERSION}",
+  "task_summary": "",
+  "context_level_at_close": "",
+  "open_items": [],
+  "decisions_made": [],
+  "files_modified": [],
+  "next_action": "",
+  "hashimoto_events": []
+}`;
+
+const HASHIMOTO_LOG = `# Hashimoto Log\n| Data | Tipo | Descrição | Arquivo Corrigido |\n|------|------|-----------|-------------------|\n`;
+
+const SESSION_SCHEMA = `# Session Schema v1\nSchema de memória entre sessões — veja docs/session-schema.md\nno repositório Bifrost para documentação completa.\nhttps://github.com/JRoberto1/Bifrost_Harness-Engineering/blob/main/docs/session-schema.md\n`;
+
+const GITATTRIBUTES = `* text=auto eol=lf\n*.md text eol=lf\n*.py text eol=lf\n*.json text eol=lf\n*.yml text eol=lf\n`;
 
 // ── Instalar ─────────────────────────────────────────────────
 async function cmdInstall(){
@@ -193,7 +213,9 @@ async function cmdInstall(){
   write(".harness/VERSION",VERSION,true); ok(".harness/VERSION");
   write(".harness/index.md",INDEX_MD,true); ok(".harness/index.md");
   write(".harness/config.json",CONFIG_JSON,true); ok(".harness/config.json");
-  write(".harness/memory/last-session.md",LAST_SESSION,true); ok(".harness/memory/");
+  write(".harness/memory/last-session.json",LAST_SESSION_JSON,true);
+  write(".harness/memory/hashimoto-log.md",HASHIMOTO_LOG,true);
+  ok(".harness/memory/");
 
   // Domínios
   if(domains.saas){write(".harness/domains/saas.md",DOMAINS.saas,true);ok("domain: saas");}
@@ -237,6 +259,9 @@ async function cmdInstall(){
   write("docs/domain-rules.md",`# Regras de Domínio\n\n> Preencha com as regras de negócio REAIS.\n> Atualize sempre que encontrar uma regra nova (Hashimoto).\n\n## Schemas\n\n\`\`\`typescript\n// defina seus tipos aqui\n\`\`\`\n\n## Regras de Negócio\n\n### RN-001: [Nome]\n**Descrição:** [o que impõe]\n**Motivo:** [por que existe]\n`,true);
   write("docs/coding-standards.md",`# Padrões de Código\n\n## Regras\n- Sem \`any\` em TypeScript\n- Erros tratados explicitamente\n- Logs estruturados\n- Commits: \`tipo(escopo): descrição\`\n  - feat, fix, docs, refactor, test, harness\n`,true);
   ok("docs/ (architecture, domain-rules, coding-standards)");
+  write("docs/session-schema.md",SESSION_SCHEMA,true);
+  write(".gitattributes",GITATTRIBUTES,true);
+  ok(".gitattributes · docs/session-schema.md");
 
   // Agents
   write("agents/code-reviewer.md",`# Agente: Code Reviewer\n\nRevisor sênior com framework de 5 dimensões: Correção · Legibilidade · Arquitetura · Segurança · Performance.\n\n## Ferramentas\nRead, Bash(grep:*), Bash(npm test:*), Bash(npm run lint:*)\n`,true);
@@ -286,12 +311,13 @@ async function cmdInstall(){
   console.log(`${c.bold}║      🌉 Bifrost Instalado!           ║${c.reset}`);
   console.log(`${c.bold}╚══════════════════════════════════════╝${c.reset}\n`);
   console.log(`  Projeto: ${c.blue}${name}${c.reset}`);
-  console.log(`  Skills:  ${c.blue}${installed}/${skills.length} instaladas${c.reset}\n`);
+  console.log(`  Skills:  ${c.blue}use 'npx harness-engineering skill --list'${c.reset}\n`);
   console.log(`${c.bold}  Próximos passos:${c.reset}`);
-  info(`Preencha ${c.cyan}docs/architecture.md${c.reset} com sua stack real`);
-  info(`Preencha ${c.cyan}docs/domain-rules.md${c.reset} com suas regras de negócio`);
-  info(`Mais skills: ${c.cyan}npx harness-engineering skill --bundle sdlc${c.reset}`);
-  info(`Verificar: ${c.cyan}npx harness-engineering check${c.reset}`);
+  info(`Abra ${c.cyan}AGENTS.md${c.reset} e leia as regras do harness`);
+  info(`No Claude Code: leia ${c.cyan}CLAUDE.md${c.reset} antes de qualquer tarefa`);
+  info(`No Antigravity: leia ${c.cyan}GEMINI.md${c.reset} antes de qualquer tarefa`);
+  info(`Verificar instalação: ${c.cyan}npx harness-engineering check${c.reset}`);
+  info(`Ver métricas: ${c.cyan}npx harness-engineering stats${c.reset}`);
   console.log();
 }
 
@@ -366,14 +392,62 @@ function cmdCheck(){
   else console.log(`${c.red}❌ ${issues} problema(s)${c.reset} — rode: npx harness-engineering\n`);
 }
 
+// ── Upgrade ──────────────────────────────────────────────────
+async function cmdUpgrade(){
+  let current="?";
+  try{
+    current=fs.readFileSync(path.join(TARGET,".harness/VERSION"),"utf8").trim();
+  }catch(_){
+    try{
+      const cfg=JSON.parse(fs.readFileSync(path.join(TARGET,".harness/config.json"),"utf8"));
+      current=cfg.version||"?";
+    }catch(_){}
+  }
+
+  console.log(`\n${c.bold}🌉 Bifrost Upgrade${c.reset}\n${"=".repeat(30)}\n`);
+  info(`Versão instalada: ${current}`);
+  process.stdout.write(`  Verificando npm... `);
+
+  const latest=await new Promise(resolve=>{
+    https.get(
+      "https://registry.npmjs.org/harness-engineering/latest",
+      {headers:{"Accept":"application/json"}},
+      res=>{
+        let data="";
+        res.on("data",chunk=>data+=chunk);
+        res.on("end",()=>{
+          try{resolve(JSON.parse(data).version||null);}
+          catch(_){resolve(null);}
+        });
+      }
+    ).on("error",()=>resolve(null));
+  });
+
+  if(!latest){
+    console.log(`${c.yellow}offline${c.reset}`);
+    console.log(`\n  ${c.yellow}⚠${c.reset} Não foi possível verificar versão no npm.\n`);
+    return;
+  }
+  console.log(`${c.green}ok${c.reset}`);
+
+  if(current===latest){
+    console.log(`\n  ${c.green}✓${c.reset} Bifrost já está na versão mais recente (v${latest})\n`);
+  }else{
+    console.log(`\n  ${c.yellow}Nova versão disponível:${c.reset} v${current} → v${latest}`);
+    console.log(`  Para atualizar: ${c.cyan}npx harness-engineering@latest upgrade --force${c.reset}`);
+    console.log(`  ${c.yellow}⚠${c.reset} O upgrade não sobrescreve customizações em ${c.cyan}directives/${c.reset} e ${c.cyan}.harness/${c.reset}\n`);
+  }
+}
+
 // ── Entry point ───────────────────────────────────────────────
 const[,,cmd,...rest]=process.argv;
 switch(cmd){
   case"skill":   cmdSkill(rest);break;
   case"check":   cmdCheck();break;
   case"stats":   require("./stats.js").printStats();break;
+  case"upgrade": cmdUpgrade();break;
   case"--version":case"-v": console.log(`bifrost-harness v${VERSION}`);break;
   case"--help":case"-h":
-    console.log(`\n${c.bold}🌉 Bifrost Harness Engineering v${VERSION}${c.reset}\n\nnpx harness-engineering              Instala o Bifrost\nnpx harness-engineering skill <nome> Instala uma skill\nnpx harness-engineering skill --bundle <bundle>\nnpx harness-engineering skill --list  Lista disponíveis\nnpx harness-engineering check         Verifica integridade\n\n${c.bold}Bundles:${c.reset} essentials · saas · api · security · automation · ai · sdlc\n`);break;
+    console.log(`\n${c.bold}🌉 Bifrost Harness Engineering v${VERSION}${c.reset}\n\nnpx harness-engineering              Instala o Bifrost\nnpx harness-engineering skill <nome> Instala uma skill\nnpx harness-engineering skill --bundle <bundle>\nnpx harness-engineering skill --list  Lista disponíveis\nnpx harness-engineering check         Verifica integridade\nnpx harness-engineering stats         Exibe métricas do harness\nnpx harness-engineering upgrade       Verifica e aplica atualizações\n\n${c.bold}Bundles:${c.reset} essentials · saas · api · security · automation · ai · sdlc\n`);break;
   default: cmdInstall();
 }
