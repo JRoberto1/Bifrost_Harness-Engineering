@@ -73,6 +73,28 @@ Antes de executar qualquer tarefa, classifique:
 
 **Se a intenção não estiver clara → pergunte antes de executar.**
 
+## Taxonomia de Erros — Onde Corrigir
+
+Classifique o erro antes de aplicar Hashimoto. Cada tipo tem
+um arquivo de correção diferente.
+
+| Tipo | Sintoma | Causa Provável | Onde Corrigir |
+|------|---------|----------------|---------------|
+| **A — Harness Miss** | Agente executou sem carregar a directive certa | Triggers insuficientes no frontmatter | `directives/<nome>.md` → adicionar trigger · regenerar index |
+| **B — Directive Incompleta** | Directive foi carregada mas não cobriu o edge case | SOP não previu o cenário | `directives/<nome>.md` → adicionar edge case ou step |
+| **C — Context Overflow** | Agente perdeu contexto no meio da tarefa | Janela cheia, compressão não acionada | `execution/compress-history.py` → ajustar threshold · verificar budget table |
+| **D — Hallucination** | Agente inventou sem marcar [VERIFICAR] | Regra de verificação fraca | `AGENTS.md` → reforçar regra de verificação · adicionar ao quality gate |
+| **E — Permission Violation** | Agente executou ação sem autorização do tier correto | Tier de permissão ambíguo | `AGENTS.md` → clarificar o tier · adicionar exemplo ao caso limítrofe |
+
+## Protocolo de Aplicação
+
+1. Identifique o tipo (A, B, C, D ou E)
+2. Corrija no arquivo indicado pela coluna "Onde Corrigir"
+3. Se for Tipo A → rode `python scripts/build-harness.py` para regenerar o index
+4. Se for qualquer tipo → rode `python scripts/sync-harness.py` para propagar
+5. Commit com prefixo: `harness(tipo-A):`, `harness(tipo-B):` etc.
+6. Adicione o caso ao log: `.harness/memory/hashimoto-log.md`
+
 ## Aprendizados Acumulados
 <!-- Atualize aqui a cada evolução do harness -->
 <!-- Formato: [data] [versão] [o que foi aprendido] -->

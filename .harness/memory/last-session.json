@@ -1,0 +1,14 @@
+{
+  "$schema": "https://bifrost.harness/session-schema/v1",
+  "session_id": "",
+  "timestamp": "",
+  "runtime": "",
+  "harness_version": "1.4.0",
+  "task_summary": "",
+  "context_level_at_close": "",
+  "open_items": [],
+  "decisions_made": [],
+  "files_modified": [],
+  "next_action": "",
+  "hashimoto_events": []
+}

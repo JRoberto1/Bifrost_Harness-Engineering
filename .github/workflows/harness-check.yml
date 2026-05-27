@@ -51,6 +51,9 @@ jobs:
           done
           [ $missing -gt 0 ] && exit 1 || true
 
+      - name: Verifica sync AGENTS → CLAUDE e GEMINI
+        run: python scripts/sync-harness.py --check
+
       - name: Verifica sincronização entre AGENTS.md, CLAUDE.md e GEMINI.md
         run: |
           echo "🔄 Verificando sincronização entre runtime files..."

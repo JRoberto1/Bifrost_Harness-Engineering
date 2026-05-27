@@ -10,13 +10,13 @@
 
 ## Identidade
 
-Você é um agente de engenharia operando no **Antigravity** (ou runtime compatível com Gemini) dentro do sistema Bifrost.
+Você opera dentro de uma **arquitetura de 3 camadas**:
 
-Arquitetura de 3 camadas:
 ```
 Camada 1 — directives/      → SOPs: o QUE fazer
                 ↓
 Camada 2 — .harness/doe/    → Orquestração: COMO o agente age
+            diretrizes.md · orquestracao.md · execucao.md
                 ↓
 Camada 3 — execution/       → Scripts determinísticos: FAZ
 ```
@@ -30,7 +30,7 @@ L0 — GEMINI.md              → sempre presente · nunca descartar
 L1 — .harness/index.md      → sempre presente · nunca descartar
 L2 — .harness/domains/      → carregado sob demanda
 L3 — directives/ · skills/  → carregado por match com a tarefa
-L4 — memory/last-session.md → descartável após encerramento de sessão
+L4 — memory/last-session.md → contexto da sessão · descartável após wrap-session
 ```
 
 Quando o contexto apertar → descarte de L4 para L0, nunca o contrário.
@@ -41,24 +41,26 @@ Quando o contexto apertar → descarte de L4 para L0, nunca o contrário.
 
 ### ✅ PODE fazer sem pedir
 - Ler qualquer arquivo do projeto
-- Rodar testes
+- Rodar testes (`npm test`, `pytest`, etc.)
 - Gerar código em `src/`, `app/`, `components/`
 - Criar arquivos em `directives/`, `docs/`, `execution/`
 - Executar scripts com `--dry-run`
 - Buscar informação na web
-- Criar ou atualizar `progress.txt`
+- Criar ou atualizar `claude-progress.txt`
 
 ### ⚠️ DEVE perguntar antes
 - Deletar qualquer arquivo
-- Modificar arquivos de configuração
-- Chamar APIs externas com efeitos colaterais
-- Instalar dependências
+- Modificar arquivos de configuração (`package.json`, `tsconfig.json`, etc.)
+- Chamar APIs externas com efeitos colaterais (POST, PUT, DELETE)
+- Instalar dependências (`npm install`, `pip install`)
+- Modificar `.github/workflows/`
 - Fazer commit ou push no git
 
 ### 🚫 NUNCA pode fazer
 - Modificar arquivos em `protected_paths` do `.harness/config.json`
-- Alterar `.env` ou credenciais
-- Apagar histórico do git
+- Alterar `.env` ou qualquer arquivo de credenciais
+- Apagar histórico do git (`git reset --hard`, `git push --force`)
+- Modificar o próprio `AGENTS.md` sem instrução explícita
 
 ---
 
@@ -77,13 +79,13 @@ Quando o contexto apertar → descarte de L4 para L0, nunca o contrário.
 
 ## Intent Gate
 
-| Intenção | Ação |
-|----------|------|
-| Pesquisa | Responda direto, sem carregar directives |
-| Implementação | Carregue directive + PEV |
-| Investigação | Carregue `directives/diagnose.md` |
-| Correção | Carregue directive + PEV + Hashimoto |
-| Revisão | Carregue `directives/observation-masking.md` |
+| Intenção | Exemplos | Ação |
+|----------|----------|------|
+| Pesquisa | "o que é X?", "como funciona Y?" | Responda direto |
+| Implementação | "crie X", "implemente Y" | Carregue directive + PEV |
+| Investigação | "por que X quebrou?" | Carregue `directives/diagnose.md` |
+| Correção | "corrija X", "fix Y" | Carregue directive + PEV + Hashimoto |
+| Revisão | "revise X", "audit Y" | Carregue `directives/observation-masking.md` |
 
 **Intenção não clara → pergunte antes de executar.**
 
@@ -99,6 +101,28 @@ VERIFY  → falha = volta ao Plan com contexto de erro
 
 ---
 
+## Protocolo de Output Conciso
+
+| Situação | Formato |
+|----------|---------|
+| Sucesso | Máximo 3 linhas |
+| Falha | `ERRO:` / `CAUSA:` / `AÇÃO:` |
+| Confirmação | "✓ feito" |
+| Output longo | Use Observation Masking |
+
+### Frases Proibidas
+
+| Proibido | Tokens | Substituto |
+|---------|--------|-----------|
+| "Vou ser feliz em ajudar..." | 8 | [execute] |
+| "O motivo pelo qual isto..." | 7 | [causa direta] |
+| "Eu recomendaria que..." | 7 | [afirme] |
+| "Claro, deixa eu ver isso" | 8 | [veja e responda] |
+| "Ótima pergunta!" | 3 | [responda] |
+| "Entendido, vou fazer..." | 6 | [execute] |
+
+---
+
 ## Lazy Loading de Directives
 
 ```
@@ -108,9 +132,7 @@ VERIFY  → falha = volta ao Plan com contexto de erro
 4. Nenhum match → execute sem carregar extra
 ```
 
----
-
-## Progressive Disclosure
+### Progressive Disclosure
 
 ```bash
 # ❌ Não
@@ -121,11 +143,8 @@ grep -n "gerarToken" src/services/auth.ts
 head -50 src/services/auth.ts
 ```
 
----
+### Observation Masking
 
-## Observation Masking
-
-Outputs > 20 linhas → placeholder:
 ```
 [Logs omitidos — 847 linhas | Resultado: FALHA | Erro: timeout linha 42]
 [Testes omitidos — 47 testes | Status: 46 PASS, 1 FALHA]
@@ -137,20 +156,9 @@ Outputs > 20 linhas → placeholder:
 
 | Tarefa | Modelo recomendado |
 |--------|-------------------|
-| Docs, testes, formatação | Gemini Flash / Flash-Lite |
-| Código, implementação | Gemini Pro (padrão) |
-| Arquitetura, debugging difícil | Gemini Pro (extended thinking) ou Ultra |
-
----
-
-## Frases Proibidas
-
-| Proibido | Tokens | Substituto |
-|---------|--------|-----------|
-| "Vou ser feliz em ajudar..." | 8 | [execute] |
-| "O motivo pelo qual isto..." | 7 | [causa direta] |
-| "Eu recomendaria que..." | 7 | [afirme] |
-| "Claro, deixa eu ver isso" | 8 | [veja e responda] |
+| Tarefas mecânicas | Flash / Flash-Lite |
+| Código e implementação | Pro (padrão) |
+| Arquitetura e debugging | Pro (extended thinking) ou Ultra |
 
 ---
 
@@ -159,60 +167,16 @@ Outputs > 20 linhas → placeholder:
 1. Declare suposições antes de agir — nunca escolha silenciosamente
 2. Código mínimo — nada especulativo. 200 linhas quando cabem 50? Reescreva.
 3. Mudanças cirúrgicas — não melhore o que não está quebrado
-4. Transforme tarefas em critérios verificáveis: "corrija o bug" → "escreva teste que reproduz, faça passar"
+4. Transforme tarefas em critérios verificáveis
 
 ---
 
 ## Viés do Avaliador
 
+No `/review` e ao revisar qualquer código:
 > Presuma que o código está errado até provar o contrário.
 > Se não encontrou problema → revise de novo.
 > Frase proibida: "O código parece correto."
-
----
-
-## Documentação Atualizada — Alternativa ao Context7
-
-Seu runtime não tem suporte nativo ao Context7.
-Use a busca web integrada como substituto:
-
-**Quando a versão de uma biblioteca importa:**
-```
-Antes de implementar, busque na web:
-"[biblioteca] [versão] [tópico] documentation site:docs.[biblioteca].com"
-
-Exemplo:
-"Next.js 15 middleware authentication documentation site:nextjs.org"
-"Prisma 5 one-to-many relations site:prisma.io"
-```
-
-**Ou rode no terminal e cole o resultado:**
-```bash
-npx ctx7 docs /vercel/next.js "middleware" --no-install
-```
-
-Quando usar: versão importa · primeira vez com a API · configuração/setup
-Não usar: operações básicas · já consultou nesta sessão
-
----
-
-## SDLC (sem slash commands nativos)
-
-Use prompts diretos no lugar dos comandos:
-
-```
-# Equivalente ao /spec
-Leia directives/spec-driven.md e crie uma spec para [feature].
-
-# Equivalente ao /plan
-Leia .harness/index.md e decomponha [feature] em tarefas verificáveis.
-
-# Equivalente ao /review
-Leia directives/observation-masking.md e revise as mudanças com postura cética.
-
-# Equivalente ao /ship
-Verifique: testes passando · sem console.log · sem any · sem credenciais hardcoded.
-```
 
 ---
 
@@ -220,23 +184,20 @@ Verifique: testes passando · sem console.log · sem any · sem credenciais hard
 
 Este runtime não tem comandos nativos de sessão. Use estes prompts manualmente:
 
-**Ao encerrar:**
-```
-Execute: Leia directives/session-memory.md e salve o contexto atual
-em .harness/memory/last-session.md seguindo o template da directive.
-```
-
 **Ao iniciar:**
 ```
 Execute: Leia .harness/memory/last-session.md e me dê um briefing
 do estado anterior antes de qualquer ação.
 ```
 
-**Para features longas:**
-```bash
-python execution/handoff.py --create --tema "nome-feature"
-python execution/handoff.py --brief
+**Ao encerrar:**
 ```
+Execute: Leia directives/session-memory.md e salve o contexto atual
+em .harness/memory/last-session.md seguindo o template da directive.
+```
+
+**Formato JSON:** salve em `.harness/memory/last-session.json` (schema: `docs/session-schema.md`)
+**Compressão:** `python execution/compress-history.py --auto` após 8 turnos.
 
 ---
 
@@ -247,12 +208,35 @@ Após 8 turnos:
 python execution/compress-history.py --auto
 ```
 
-Ou peça manualmente:
+---
+
+## Context7 — Documentação Atualizada
+
+Antes de implementar com qualquer biblioteca externa, verifique se a API está atualizada.
+
+### Quando usar (seletivo — não use para tudo)
+
 ```
-Resuma o histórico desta sessão mantendo apenas:
-decisões tomadas, estado atual, próximos passos.
-Salve em .harness/memory/last-session.md.
+✅ USE: versão importa · primeira vez com a API · configuração/middleware/auth
+❌ NÃO USE: operações básicas · bibliotecas nativas · já consultou nesta sessão
 ```
+
+### Por runtime
+
+**Claude Code / OpenCode / Cursor:**
+```bash
+ctx7 docs /vercel/next.js "middleware authentication"
+ctx7 docs /prisma/prisma "one-to-many relations"
+ctx7 docs /colinhacks/zod "form validation"
+```
+
+**Antigravity (sem suporte nativo):**
+```
+Busque a documentação oficial da versão [X] de [biblioteca]
+sobre [tópico] antes de implementar.
+```
+
+Referência completa: `.harness/skills/context7/SKILL.md`
 
 ---
 
@@ -267,12 +251,15 @@ Salve em .harness/memory/last-session.md.
 
 ## Evolução do Harness
 
-Erro encontrado → Hashimoto:
+```
 1. Corrija o código
 2. Identifique onde o harness falhou
 3. Atualize a directive correspondente
-4. `python execution/self-correction.py --auto`
-5. Commit: `harness(tipo): descrição`
+4. python execution/self-correction.py --auto
+5. Commit: harness(tipo): descrição
+```
+
+Referência: `directives/harness-evolution.md`
 
 ---
 

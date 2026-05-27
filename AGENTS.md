@@ -193,6 +193,7 @@ No `/review` e ao revisar qualquer código:
 
 **Ao iniciar:** leia `.harness/memory/last-session.md` se existir.
 **Ao encerrar:** salve contexto em `.harness/memory/last-session.md`.
+**Formato JSON:** salve em `.harness/memory/last-session.json` (schema: `docs/session-schema.md`)
 
 **Claude Code:** `/wrap-session` e `/brief-session`
 **Outros runtimes:** leia `directives/session-memory.md`
@@ -205,7 +206,6 @@ Após 8 turnos:
 ```bash
 python execution/compress-history.py --auto
 ```
-Claude Code: `/context-check --compress`
 
 ---
 

@@ -9,13 +9,13 @@
 
 ## Identidade
 
-Você é um agente de engenharia operando no **Claude Code** dentro do sistema Bifrost.
+Você opera dentro de uma **arquitetura de 3 camadas**:
 
-Arquitetura de 3 camadas:
 ```
 Camada 1 — directives/      → SOPs: o QUE fazer
                 ↓
 Camada 2 — .harness/doe/    → Orquestração: COMO o agente age
+            diretrizes.md · orquestracao.md · execucao.md
                 ↓
 Camada 3 — execution/       → Scripts determinísticos: FAZ
 ```
@@ -29,7 +29,7 @@ L0 — CLAUDE.md              → sempre presente · nunca descartar
 L1 — .harness/index.md      → sempre presente · nunca descartar
 L2 — .harness/domains/      → carregado sob demanda
 L3 — directives/ · skills/  → carregado por match com a tarefa
-L4 — memory/last-session.md → descartável após /wrap-session
+L4 — memory/last-session.md → contexto da sessão · descartável após wrap-session
 ```
 
 Quando o contexto apertar → descarte de L4 para L0, nunca o contrário.
@@ -52,14 +52,14 @@ Quando o contexto apertar → descarte de L4 para L0, nunca o contrário.
 - Modificar arquivos de configuração (`package.json`, `tsconfig.json`, etc.)
 - Chamar APIs externas com efeitos colaterais (POST, PUT, DELETE)
 - Instalar dependências (`npm install`, `pip install`)
-- Fazer commit ou push no git
 - Modificar `.github/workflows/`
+- Fazer commit ou push no git
 
 ### 🚫 NUNCA pode fazer
 - Modificar arquivos em `protected_paths` do `.harness/config.json`
 - Alterar `.env` ou qualquer arquivo de credenciais
 - Apagar histórico do git (`git reset --hard`, `git push --force`)
-- Executar comandos destrutivos irreversíveis
+- Modificar o próprio `AGENTS.md` sem instrução explícita
 
 ---
 
@@ -78,13 +78,13 @@ Quando o contexto apertar → descarte de L4 para L0, nunca o contrário.
 
 ## Intent Gate
 
-| Intenção | Ação |
-|----------|------|
-| Pesquisa | Responda direto, sem carregar directives |
-| Implementação | Carregue directive + PEV |
-| Investigação | Carregue `directives/diagnose.md` |
-| Correção | Carregue directive + PEV + Hashimoto |
-| Revisão | Carregue `directives/observation-masking.md` |
+| Intenção | Exemplos | Ação |
+|----------|----------|------|
+| Pesquisa | "o que é X?", "como funciona Y?" | Responda direto |
+| Implementação | "crie X", "implemente Y" | Carregue directive + PEV |
+| Investigação | "por que X quebrou?" | Carregue `directives/diagnose.md` |
+| Correção | "corrija X", "fix Y" | Carregue directive + PEV + Hashimoto |
+| Revisão | "revise X", "audit Y" | Carregue `directives/observation-masking.md` |
 
 **Intenção não clara → pergunte antes de executar.**
 
@@ -100,6 +100,28 @@ VERIFY  → falha = volta ao Plan com contexto de erro
 
 ---
 
+## Protocolo de Output Conciso
+
+| Situação | Formato |
+|----------|---------|
+| Sucesso | Máximo 3 linhas |
+| Falha | `ERRO:` / `CAUSA:` / `AÇÃO:` |
+| Confirmação | "✓ feito" |
+| Output longo | Use Observation Masking |
+
+### Frases Proibidas
+
+| Proibido | Tokens | Substituto |
+|---------|--------|-----------|
+| "Vou ser feliz em ajudar..." | 8 | [execute] |
+| "O motivo pelo qual isto..." | 7 | [causa direta] |
+| "Eu recomendaria que..." | 7 | [afirme] |
+| "Claro, deixa eu ver isso" | 8 | [veja e responda] |
+| "Ótima pergunta!" | 3 | [responda] |
+| "Entendido, vou fazer..." | 6 | [execute] |
+
+---
+
 ## Lazy Loading de Directives
 
 ```
@@ -109,9 +131,7 @@ VERIFY  → falha = volta ao Plan com contexto de erro
 4. Nenhum match → execute sem carregar extra
 ```
 
----
-
-## Progressive Disclosure
+### Progressive Disclosure
 
 ```bash
 # ❌ Não
@@ -122,11 +142,8 @@ grep -n "gerarToken" src/services/auth.ts
 head -50 src/services/auth.ts
 ```
 
----
+### Observation Masking
 
-## Observation Masking
-
-Outputs > 20 linhas → placeholder:
 ```
 [Logs omitidos — 847 linhas | Resultado: FALHA | Erro: timeout linha 42]
 [Testes omitidos — 47 testes | Status: 46 PASS, 1 FALHA]
@@ -144,84 +161,70 @@ Outputs > 20 linhas → placeholder:
 
 ---
 
-## Frases Proibidas
-
-| Proibido | Tokens | Substituto |
-|---------|--------|-----------|
-| "Vou ser feliz em ajudar..." | 8 | [execute] |
-| "O motivo pelo qual isto..." | 7 | [causa direta] |
-| "Eu recomendaria que..." | 7 | [afirme] |
-| "Claro, deixa eu ver isso" | 8 | [veja e responda] |
-
----
-
 ## Princípios Karpathy
 
 1. Declare suposições antes de agir — nunca escolha silenciosamente
 2. Código mínimo — nada especulativo. 200 linhas quando cabem 50? Reescreva.
 3. Mudanças cirúrgicas — não melhore o que não está quebrado
-4. Transforme tarefas em critérios verificáveis: "corrija o bug" → "escreva teste que reproduz, faça passar"
+4. Transforme tarefas em critérios verificáveis
 
 ---
 
-## Viés do Avaliador (no /review)
+## Viés do Avaliador
 
+No `/review` e ao revisar qualquer código:
 > Presuma que o código está errado até provar o contrário.
 > Se não encontrou problema → revise de novo.
 > Frase proibida: "O código parece correto."
 
 ---
 
-## Context7 — Documentação Atualizada
-
-Antes de implementar com qualquer biblioteca externa cuja versão importa:
-
-```bash
-ctx7 docs /vercel/next.js "middleware authentication"
-ctx7 docs /prisma/prisma "relations"
-ctx7 docs /colinhacks/zod "form validation"
-ctx7 library [nome]  # para encontrar o ID
-```
-
-Quando usar: versão importa · primeira vez com a API · configuração/setup
-Não usar: operações básicas · já consultou nesta sessão
-
-Setup (uma vez): `npx ctx7 setup --claude`
-
----
-
-## Comandos Claude Code
-
-```
-/spec           → spec antes de qualquer código
-/plan           → decomposição em tarefas verificáveis
-/review         → quality gate com viés do avaliador
-/ship           → checklist antes de deploy
-/wrap-session   → encerra sessão, salva last-session.md + handoff.json
-/brief-session  → retoma sessão (~500 tokens vs 20k+)
-/context-check  → audita e comprime contexto
-/model-select   → recomenda modelo para a tarefa
-```
-
----
-
 ## Memória de Sessão
 
 **Ao iniciar:** leia `.harness/memory/last-session.md` se existir.
-**Ao encerrar:** execute `/wrap-session` — salva `last-session.md` e `handoff.json`.
+**Ao encerrar:** execute `/wrap-session`.
+**Formato JSON:** salve em `.harness/memory/last-session.json` (schema: `docs/session-schema.md`)
+**Compressão:** `/context-check --compress` após 8 turnos.
+Comandos disponíveis: `/wrap-session` · `/brief-session` · `/context-check`
 
-Para features longas:
+---
+
+## Compressão de Histórico
+
+Após 8 turnos:
 ```bash
-python execution/handoff.py --create --tema "nome-feature"
-python execution/handoff.py --brief  # para retomar
+python execution/compress-history.py --auto
 ```
 
 ---
 
-## Compressão
+## Context7 — Documentação Atualizada
 
-Após 8 turnos: `/context-check --compress`
-ou: `python execution/compress-history.py --auto`
+Antes de implementar com qualquer biblioteca externa, verifique se a API está atualizada.
+
+### Quando usar (seletivo — não use para tudo)
+
+```
+✅ USE: versão importa · primeira vez com a API · configuração/middleware/auth
+❌ NÃO USE: operações básicas · bibliotecas nativas · já consultou nesta sessão
+```
+
+### Por runtime
+
+**Claude Code / OpenCode / Cursor:**
+```bash
+ctx7 docs /vercel/next.js "middleware authentication"
+ctx7 docs /prisma/prisma "one-to-many relations"
+ctx7 docs /colinhacks/zod "form validation"
+```
+
+**Antigravity (sem suporte nativo):**
+```
+Busque a documentação oficial da versão [X] de [biblioteca]
+sobre [tópico] antes de implementar.
+```
+
+Referência completa: `.harness/skills/context7/SKILL.md`
 
 ---
 
@@ -236,12 +239,15 @@ ou: `python execution/compress-history.py --auto`
 
 ## Evolução do Harness
 
-Erro encontrado → Hashimoto:
+```
 1. Corrija o código
 2. Identifique onde o harness falhou
 3. Atualize a directive correspondente
-4. `python execution/self-correction.py --auto`
-5. Commit: `harness(tipo): descrição`
+4. python execution/self-correction.py --auto
+5. Commit: harness(tipo): descrição
+```
+
+Referência: `directives/harness-evolution.md`
 
 ---
 
