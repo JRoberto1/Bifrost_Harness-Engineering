@@ -1,4 +1,8 @@
-[![npm](https://img.shields.io/npm/v/harness-engineering?style=flat-square&color=000)](https://www.npmjs.com/package/harness-engineering) [![CI](https://github.com/JRoberto1/Bifrost_Harness-Engineering/actions/workflows/harness-check.yml/badge.svg)](https://github.com/JRoberto1/Bifrost_Harness-Engineering/actions/workflows/harness-check.yml) [![MIT](https://img.shields.io/badge/license-MIT-blue?style=flat-square)](LICENSE) [![runtimes](https://img.shields.io/badge/runtimes-Claude%20Code%20%7C%20Antigravity%20%7C%20OpenCode-green?style=flat-square)](#compatibilidade)
+[![npm CLI](https://img.shields.io/npm/v/harness-engineering?style=flat-square&label=CLI&color=000)](https://www.npmjs.com/package/harness-engineering)
+[![Harness](https://img.shields.io/badge/harness-v1.4.0-blue?style=flat-square)](https://github.com/JRoberto1/Bifrost_Harness-Engineering/releases/tag/v1.4.0)
+[![CI](https://github.com/JRoberto1/Bifrost_Harness-Engineering/actions/workflows/harness-check.yml/badge.svg)](https://github.com/JRoberto1/Bifrost_Harness-Engineering/actions/workflows/harness-check.yml)
+[![MIT](https://img.shields.io/badge/license-MIT-blue?style=flat-square)](https://github.com/JRoberto1/Bifrost_Harness-Engineering/blob/main/LICENSE)
+[![runtimes](https://img.shields.io/badge/runtimes-Claude%20Code%20%7C%20Antigravity%20%7C%20OpenCode-green?style=flat-square)](#compatibilidade)
 
 # 🌉 Bifrost — Harness Engineering
 
@@ -45,12 +49,69 @@ Harness Engineering →  você é confiável em produção
 
 ## Instalação
 
+> Requisito: [Node.js 16+](https://nodejs.org)
+
 ```bash
 npx harness-engineering
-npx harness-engineering check                       # verifica integridade
-npx harness-engineering skill --bundle essentials   # instala skills essenciais
-npx harness-engineering skill --list                # ver todas disponíveis
 ```
+
+O instalador faz 4 perguntas e configura tudo em menos de 1 minuto.
+
+**Outros comandos:**
+
+```bash
+# Verificar integridade do harness
+npx harness-engineering check
+
+# Ver métricas do projeto
+npx harness-engineering stats
+```
+
+Exemplo de output do `stats`:
+```
+─────────────────────────────────
+  Bifrost v1.4.0 — Stats
+─────────────────────────────────
+  Directives:     9 carregadas
+  Runtime:        Claude Code (CLAUDE.md)
+  Último sync:    2025-05-27
+  Sessões:        3 registradas
+  Harness:        ✓ íntegro
+─────────────────────────────────
+```
+
+```bash
+# Verificar se há versão nova disponível
+npx harness-engineering upgrade
+```
+
+Exemplo de output do `upgrade`:
+```
+✓ Bifrost já está na versão mais recente (v2.0.3)
+```
+
+ou:
+```
+Nova versão disponível: v2.0.3 → v2.1.0
+Para atualizar: npx harness-engineering@latest upgrade --force
+⚠ O upgrade não sobrescreve customizações em directives/ e .harness/
+```
+
+---
+
+## Duas versões, uma ferramenta
+
+| | Harness | CLI |
+|---|---|---|
+| **O que é** | Arquivos copiados para seu projeto | Instalador e utilitários |
+| **Versão atual** | v1.4.0 | v2.0.3 |
+| **Onde vive** | Dentro do seu projeto | npm global |
+| **Como atualizar** | `git pull` + `sync-harness.py` | `npx harness-engineering upgrade` |
+
+O **harness** são os arquivos que definem as regras do agente —
+`AGENTS.md`, `directives/`, `.harness/`, `scripts/`.
+O **CLI** é o instalador que copia esses arquivos para o seu projeto
+e oferece utilitários como `check`, `stats` e `upgrade`.
 
 ---
 
@@ -198,23 +259,37 @@ Quando o agente cometer um erro:
 
 ## Changelog
 
-### v1.4.0 — atual
+### Harness v1.4.0 — atual
 
-* ✨ `GEMINI.md` reescrito com comandos corretos para Antigravity
-* ✨ `docs/architecture.md` — diagrama das 3 camadas e fluxo de decisão
-* ✨ `scripts/build-harness.py` — gera `.harness/index.md` automaticamente
-* ✨ `scripts/sync-harness.py` — AGENTS.md vira fonte canônica
-* ✨ Taxonomia Hashimoto — 5 tipos (A–E) com protocolo de correção
-* ✨ `.harness/memory/last-session.json` — schema estruturado de sessão
-* ✨ CI consolidado em `harness-check.yml` com 9 checks automáticos
-* ✨ `.gitattributes` — line endings determinísticos Windows/Linux
+- ✨ `GEMINI.md` reescrito com comandos corretos para Antigravity
+- ✨ `docs/architecture.md` — diagrama das 3 camadas e fluxo de decisão
+- ✨ `scripts/build-harness.py` — gera `.harness/index.md` automaticamente
+- ✨ `scripts/sync-harness.py` — AGENTS.md vira fonte canônica
+- ✨ Taxonomia Hashimoto — 5 tipos (A–E) com protocolo de correção
+- ✨ `.harness/memory/last-session.json` — schema estruturado de sessão
+- ✨ CI consolidado em `harness-check.yml` com 9 checks automáticos
+- ✨ `.gitattributes` — line endings determinísticos Windows/Linux
 
-### v1.2.0
-- Lazy loading de directives via `.harness/index.md`
-- Output conciso · Observation Masking · Progressive Disclosure
-- `execution/compress-history.py` · `/context-check`
+### CLI v2.0.3
 
-### v1.0.0
+- ✨ Comando `upgrade` — verifica e instrui atualização do CLI
+- 🔧 `last-session.json` substituiu `last-session.md` no installer
+- 🔧 `hashimoto-log.md` e `.gitattributes` adicionados ao installer
+- 🔧 Next steps da welcome message atualizados
+
+### CLI v2.0.2
+
+- 🔒 Dependência externa `sickn33/antigravity-awesome-skills` removida
+- 🔧 `VERSION` interno sincronizado com `package.json`
+
+### CLI v2.0.1
+
+- 🐛 `stats.js` ausente corrigido (`npx harness-engineering stats` funcionava)
+- 🔧 OpenCode adicionado como runtime suportado
+- 🔧 Repository URL corrigida para `Bifrost_Harness-Engineering`
+
+### Harness v1.0.0 / CLI v1.x
+
 - Estrutura base: DOE · PEV · 4 domínios de negócio
 - Quality gate com pre-commit · Publicação npm
 
