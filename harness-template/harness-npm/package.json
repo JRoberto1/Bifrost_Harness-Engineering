@@ -1,22 +1,29 @@
 {
   "name": "harness-engineering",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "description": "Bifrost — Harness Engineering universal. Um comando. Qualquer runtime. Zero infraestrutura.",
   "bin": {
-    "harness-engineering": "./bin/cli.js"
+    "harness-engineering": "bin/cli.js"
   },
   "scripts": {
     "test": "node bin/cli.js check"
   },
   "keywords": [
-    "harness", "harness-engineering", "bifrost", "claude-code",
-    "agent", "ai", "llm", "context-engineering", "antigravity"
+    "harness",
+    "harness-engineering",
+    "bifrost",
+    "claude-code",
+    "agent",
+    "ai",
+    "llm",
+    "context-engineering",
+    "antigravity"
   ],
   "author": "JRoberto1",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/JRoberto1/harness-template"
+    "url": "git+https://github.com/JRoberto1/harness-template.git"
   },
   "homepage": "https://github.com/JRoberto1/harness-template#readme",
   "engines": {

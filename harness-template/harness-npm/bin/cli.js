@@ -1,17 +1,15 @@
 #!/usr/bin/env node
 // ============================================================
 // Bifrost — Harness Engineering CLI
-// v2.0.0 — Todos os Sprints A+B+C+D incluídos
+// v2.0.2 — hotfix: VERSION sync + remove dependência de supply chain externo
 // ============================================================
 
 const fs   = require("fs");
 const path = require("path");
-const https = require("https");
 const readline = require("readline");
 
-const VERSION = "2.0.0";
+const VERSION = "2.0.2";
 const TARGET  = process.cwd();
-const REPO    = "https://raw.githubusercontent.com/sickn33/antigravity-awesome-skills/main/skills";
 
 const c = {
   reset:"\x1b[0m", bold:"\x1b[1m", green:"\x1b[32m",
@@ -35,17 +33,10 @@ function write(p,content,overwrite=false){
   return true;
 }
 
-function fetchSkill(name){
-  return new Promise(resolve=>{
-    const url=`${REPO}/${name}/SKILL.md`;
-    const dest=path.join(TARGET,`.harness/skills/${name}`);
-    fs.mkdirSync(dest,{recursive:true});
-    const file=fs.createWriteStream(path.join(dest,"SKILL.md"));
-    https.get(url,{rejectUnauthorized:false},res=>{
-      if(res.statusCode!==200){file.close();fs.rmSync(dest,{recursive:true,force:true});resolve(false);return;}
-      res.pipe(file);file.on("finish",()=>{file.close();resolve(true);});
-    }).on("error",()=>{file.close();resolve(false);});
-  });
+function fetchSkill(_name){
+  // Skills externas temporariamente indisponíveis.
+  // Adicione skills manualmente em .harness/skills/
+  return Promise.resolve(false);
 }
 
 const BUNDLES = {
@@ -270,8 +261,12 @@ async function cmdInstall(){
   for(const skill of skills){
     process.stdout.write(`  ${skill}... `);
     const s=await fetchSkill(skill);
-    console.log(s?`${c.green}✓${c.reset}`:`${c.yellow}offline${c.reset}`);
+    console.log(s?`${c.green}✓${c.reset}`:`${c.yellow}indisponível${c.reset}`);
     if(s)installed++;
+  }
+  if(installed===0){
+    console.log(`\n  ${c.yellow}⚠${c.reset} Skills externas temporariamente indisponíveis.`);
+    console.log(`  Adicione skills manualmente em ${c.cyan}.harness/skills/${c.reset}\n`);
   }
 
   // Registrar skills no AGENTS.md
@@ -322,8 +317,12 @@ async function cmdSkill(args){
   for(const skill of skillNames){
     process.stdout.write(`  ${skill}... `);
     const s=await fetchSkill(skill);
-    console.log(s?`${c.green}✓${c.reset}`:`${c.red}✗${c.reset}`);
+    console.log(s?`${c.green}✓${c.reset}`:`${c.yellow}indisponível${c.reset}`);
     if(s)installed++;
+  }
+  if(installed===0){
+    console.log(`\n  ${c.yellow}⚠${c.reset} Skills externas temporariamente indisponíveis.`);
+    console.log(`  Adicione skills manualmente em ${c.cyan}.harness/skills/${c.reset}\n`);
   }
   // Registrar
   const ap=path.join(TARGET,"AGENTS.md");
