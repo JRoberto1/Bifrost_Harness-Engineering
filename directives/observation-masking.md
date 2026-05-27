@@ -1,3 +1,13 @@
+---
+id: observation-masking
+version: 1.0.0
+triggers: ["log", "output longo", "masking", "placeholder", "ocultar", "resumir output"]
+domain: universal
+estimated_tokens: 700
+compatible_runtimes: [claude-code, antigravity, opencode, cursor]
+last_updated: 2026-05-27
+---
+
 # Directive: Observation Masking
 
 ## Objetivo

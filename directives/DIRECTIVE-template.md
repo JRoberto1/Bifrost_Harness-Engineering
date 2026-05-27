@@ -1,3 +1,13 @@
+---
+id: DIRECTIVE-template
+version: 1.0.0
+triggers: ["criar directive", "nova directive", "template directive", "SOP"]
+domain: universal
+estimated_tokens: 400
+compatible_runtimes: [claude-code, antigravity, opencode, cursor]
+last_updated: 2026-05-27
+---
+
 # Directive: [NOME DA TAREFA]
 <!-- Camada 1: Define O QUE fazer. Não modifique sem permissão explícita. -->
 

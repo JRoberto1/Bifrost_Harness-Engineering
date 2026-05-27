@@ -1,3 +1,13 @@
+---
+id: health-check
+version: 1.0.0
+triggers: ["saúde", "health", "verificar sistema", "início de sessão", "dependências"]
+domain: universal
+estimated_tokens: 400
+compatible_runtimes: [claude-code, antigravity, opencode, cursor]
+last_updated: 2026-05-27
+---
+
 # Directive: Verificar Saúde do Sistema
 
 ## Objetivo

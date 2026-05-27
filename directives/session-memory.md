@@ -1,3 +1,13 @@
+---
+id: session-memory
+version: 1.0.0
+triggers: ["sessão", "memória", "retomar", "continuar", "wrap", "brief", "onde paramos"]
+domain: universal
+estimated_tokens: 900
+compatible_runtimes: [claude-code, antigravity, opencode, cursor]
+last_updated: 2026-05-27
+---
+
 # Directive: Memória de Sessão
 
 ## Objetivo

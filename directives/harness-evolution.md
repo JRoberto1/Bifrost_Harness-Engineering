@@ -1,3 +1,13 @@
+---
+id: harness-evolution
+version: 1.0.0
+triggers: ["erro", "bug", "hashimoto", "melhoria", "evoluir harness", "atualizar directive"]
+domain: universal
+estimated_tokens: 500
+compatible_runtimes: [claude-code, antigravity, opencode, cursor]
+last_updated: 2026-05-27
+---
+
 # Directive: Evolução do Harness
 
 ## Objetivo

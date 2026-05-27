@@ -1,3 +1,13 @@
+---
+id: office-hours
+version: 1.0.0
+triggers: ["feature nova", "reframing", "office hours", "antes de spec", "premissa", "questionar"]
+domain: universal
+estimated_tokens: 600
+compatible_runtimes: [claude-code, antigravity, opencode, cursor]
+last_updated: 2026-05-27
+---
+
 # Directive: Office Hours — Reframing do Produto
 
 ## Objetivo

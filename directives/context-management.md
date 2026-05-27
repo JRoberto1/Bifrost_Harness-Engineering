@@ -1,3 +1,13 @@
+---
+id: context-management
+version: 1.0.0
+triggers: ["contexto", "tokens", "janela", "compressão", "histórico", "limite"]
+domain: universal
+estimated_tokens: 600
+compatible_runtimes: [claude-code, antigravity, opencode, cursor]
+last_updated: 2026-05-27
+---
+
 # Directive: Gestão de Contexto e Tokens
 
 ## Objetivo

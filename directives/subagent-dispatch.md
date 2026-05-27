@@ -1,3 +1,13 @@
+---
+id: subagent-dispatch
+version: 1.0.0
+triggers: ["sub-agente", "tarefa pesada", "contexto independente", "delegar", "paralelo"]
+domain: universal
+estimated_tokens: 600
+compatible_runtimes: [claude-code, antigravity, opencode, cursor]
+last_updated: 2026-05-27
+---
+
 # Directive: Despacho de Sub-agentes
 
 ## Objetivo

@@ -20,27 +20,93 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Check AGENTS.md exists
-        run: |
-          echo "🌉 Bifrost — Verificando integridade do harness..."
-          test -f AGENTS.md || (echo "❌ AGENTS.md não encontrado" && exit 1)
-          echo "✓ AGENTS.md"
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
 
-      - name: Check mirrors in sync
+      - name: Verifica arquivos núcleo obrigatórios
         run: |
-          if ! diff -q AGENTS.md CLAUDE.md &>/dev/null; then
-            echo "❌ CLAUDE.md desincronizado com AGENTS.md"
+          echo "🌉 Bifrost — Verificando arquivos núcleo..."
+          FILES=(
+            "AGENTS.md"
+            "CLAUDE.md"
+            "GEMINI.md"
+            "docs/architecture.md"
+            "docs/domain-rules.md"
+            "docs/coding-standards.md"
+            "directives/DIRECTIVE-template.md"
+            "execution/SCRIPT-template.py"
+          )
+          missing=0
+          for f in "${FILES[@]}"; do
+            if [ ! -f "$f" ]; then
+              echo "❌ $f ausente"
+              missing=$((missing+1))
+            else
+              echo "✓ $f"
+            fi
+          done
+          [ $missing -gt 0 ] && exit 1 || true
+
+      - name: Verifica sincronização entre AGENTS.md, CLAUDE.md e GEMINI.md
+        run: |
+          echo "🔄 Verificando sincronização entre runtime files..."
+
+          # 1 — Versão idêntica nos três arquivos
+          VERSIONS=$(grep "Bifrost v" AGENTS.md CLAUDE.md GEMINI.md \
+            | awk -F'[*·]' '{for(i=1;i<=NF;i++) if($i~/Bifrost v/) print $i}' \
+            | sed 's/[^0-9.]//g' | sort -u | grep -v "^$" | wc -l)
+          if [ "$VERSIONS" -ne 1 ]; then
+            echo "❌ Versões divergentes entre AGENTS.md, CLAUDE.md e GEMINI.md:"
+            grep "Bifrost v" AGENTS.md CLAUDE.md GEMINI.md
             exit 1
           fi
-          echo "✓ CLAUDE.md sincronizado"
-          if ! diff -q AGENTS.md GEMINI.md &>/dev/null; then
-            echo "❌ GEMINI.md desincronizado com AGENTS.md"
+          echo "✓ Versão idêntica nos 3 arquivos"
+
+          # 2 — As 8 Regras Absolutas existem nos três arquivos
+          RULES=(
+            "Nunca avance"
+            "Nunca invente"
+            "Nunca quebre"
+            "Verifique.*execution"
+            "Nunca use.*any"
+            "Protocolo PEV"
+            "Hashimoto"
+            "Classifique a intenção"
+          )
+          for FILE in AGENTS.md CLAUDE.md GEMINI.md; do
+            MISSING=0
+            for rule in "${RULES[@]}"; do
+              if ! grep -qE "$rule" "$FILE"; then
+                echo "❌ $FILE: Regra Absoluta ausente: '$rule'"
+                MISSING=$((MISSING+1))
+              fi
+            done
+            [ $MISSING -gt 0 ] && exit 1
+            echo "✓ $FILE — 8 Regras Absolutas presentes"
+          done
+
+          # 3 — Intent Gate existe nos três arquivos
+          COUNT=$(grep -l "Intent Gate" AGENTS.md CLAUDE.md GEMINI.md | wc -l)
+          if [ "$COUNT" -ne 3 ]; then
+            echo "❌ Intent Gate ausente em $((3 - COUNT)) arquivo(s)"
+            grep -L "Intent Gate" AGENTS.md CLAUDE.md GEMINI.md
             exit 1
           fi
-          echo "✓ GEMINI.md sincronizado"
+          echo "✓ Intent Gate presente nos 3 arquivos"
 
-      - name: Check required files
+          # 4 — GEMINI.md não contém comandos exclusivos do Claude Code
+          if grep -qE "/wrap-session|/brief-session|/context-check" GEMINI.md; then
+            echo "❌ GEMINI.md contém comandos Claude Code (/wrap-session, /brief-session, /context-check)"
+            grep -E "/wrap-session|/brief-session|/context-check" GEMINI.md
+            exit 1
+          fi
+          echo "✓ GEMINI.md sem comandos Claude Code"
+
+      - name: Verifica arquivos de suporte
         run: |
+          echo "📦 Verificando arquivos de suporte..."
           FILES=(
             ".harness/index.md"
             ".harness/config.json"
@@ -58,26 +124,64 @@ jobs:
             echo "✓ $f"
           done
 
-      - name: Check no secrets in directives
+      - name: Verifica se index.md está atualizado
         run: |
-          if grep -rE "(password|api_key|secret)\s*[:=]\s*['\"][^'\"]{8,}" directives/ 2>/dev/null; then
-            echo "❌ Possível credencial em directives/"
-            exit 1
-          fi
-          echo "✓ Sem segredos em directives/"
+          echo "📋 Verificando se .harness/index.md está sincronizado com directives/..."
+          python scripts/build-harness.py --check
 
-      - name: Validate config.json
+      - name: Grep de segredos em directives/ e código-fonte
+        run: |
+          echo "🔐 Verificando segredos..."
+          PATTERN="(password|api_key|secret)\s*[:=]\s*['\"][^'\"]{8,}"
+          FOUND=0
+
+          if grep -rE "$PATTERN" directives/ 2>/dev/null \
+              | grep -v "harness-ignore" | grep -q .; then
+            echo "❌ Possível credencial em directives/"
+            grep -rE "$PATTERN" directives/ | grep -v "harness-ignore"
+            FOUND=1
+          fi
+
+          if grep -rE "$PATTERN" \
+              --include="*.ts" --include="*.js" --include="*.py" \
+              --exclude-dir=node_modules --exclude-dir=.git \
+              2>/dev/null \
+              | grep -v "harness-ignore" | grep -v ".env.example" | grep -q .; then
+            echo "❌ Possível credencial no código-fonte"
+            FOUND=1
+          fi
+
+          [ $FOUND -eq 0 ] && echo "✓ Sem segredos detectados" || exit 1
+
+      - name: Valida config.json
         run: |
           node -e "
             const c = require('./.harness/config.json');
             if (!c.version) throw new Error('version ausente');
             if (!c.protected_paths) throw new Error('protected_paths ausente');
             if (!c.allowed_paths) throw new Error('allowed_paths ausente');
+            if (!c.runtime_files) throw new Error('runtime_files ausente');
             console.log('✓ config.json válido — v' + c.version);
           "
+
+      - name: Verifica uso de any em TypeScript
+        run: |
+          echo "🔷 Verificando TypeScript any..."
+          TS_FILES=$(find . \( -name "*.ts" -o -name "*.tsx" \) \
+            | grep -v node_modules | grep -v "\.d\.ts" || true)
+          if [ -z "$TS_FILES" ]; then
+            echo "✓ Sem arquivos TypeScript no projeto"
+          else
+            if echo "$TS_FILES" | xargs grep -n ": any" 2>/dev/null \
+                | grep -v "harness-ignore"; then
+              echo "❌ Uso de 'any' detectado — defina o tipo explícito"
+              exit 1
+            fi
+            echo "✓ Sem 'any' detectado"
+          fi
 
       - name: Summary
         run: |
           echo ""
           echo "✅ Bifrost íntegro — todos os checks passaram"
-          echo "   AGENTS.md · CLAUDE.md · GEMINI.md · directives · config.json"
+          echo "   núcleo · sincronização · suporte · index · segredos · config · TypeScript"
