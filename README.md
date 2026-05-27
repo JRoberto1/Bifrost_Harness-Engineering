@@ -1,9 +1,8 @@
-[![npm](https://img.shields.io/npm/v/harness-engineering?style=flat-square&color=000)](https://www.npmjs.com/package/harness-engineering) [![MIT](https://img.shields.io/badge/license-MIT-blue?style=flat-square)](LICENSE) [![v1.4.0](https://img.shields.io/badge/versão-1.4.0-purple?style=flat-square)](#changelog) [![runtimes](https://img.shields.io/badge/runtimes-Claude%20Code%20%7C%20Antigravity%20%7C%20OpenCode-green?style=flat-square)](#compatibilidade)
+[![npm](https://img.shields.io/npm/v/harness-engineering?style=flat-square&color=000)](https://www.npmjs.com/package/harness-engineering) [![CI](https://github.com/JRoberto1/Bifrost_Harness-Engineering/actions/workflows/harness-check.yml/badge.svg)](https://github.com/JRoberto1/Bifrost_Harness-Engineering/actions/workflows/harness-check.yml) [![MIT](https://img.shields.io/badge/license-MIT-blue?style=flat-square)](LICENSE) [![runtimes](https://img.shields.io/badge/runtimes-Claude%20Code%20%7C%20Antigravity%20%7C%20OpenCode-green?style=flat-square)](#compatibilidade)
 
-# Bifrost
+# 🌉 Bifrost — Harness Engineering
 
-**O Sistema Operacional para Agentes de IA.**
-Um harness de engenharia que torna agentes de IA confiáveis em produção.
+A ponte entre seus projetos e qualquer agente de IA.
 
 ---
 
@@ -59,28 +58,45 @@ npx harness-engineering skill --list                # ver todas disponíveis
 ## Estrutura do Projeto
 
 ```
-.
-├── AGENTS.md              # Instrução universal — qualquer runtime
-├── CLAUDE.md              # Instrução específica para Claude Code
-├── GEMINI.md              # Instrução específica para Antigravity/Gemini
-├── .env.example           # Template de variáveis de ambiente
+seu-projeto/
 │
-├── .harness/              # Orquestração interna do harness
-│   ├── index.md           # Índice de directives (L1 da hierarquia)
-│   ├── VERSION            # Versão canônica do harness
-│   ├── config.json        # Paths protegidos e permitidos
-│   ├── doe/               # Diretrizes · Orquestração · Execução
-│   ├── domains/           # Regras por domínio de negócio
-│   ├── pev/               # Protocolo Plan-Execute-Verify
-│   ├── quality-gates/     # Pre-commit · Agent Judge
-│   └── skills/            # Skills instaladas
+├── AGENTS.md               ← fonte canônica do harness
+├── CLAUDE.md               ← gerado por sync-harness.py (Claude Code)
+├── GEMINI.md               ← gerado por sync-harness.py (Antigravity)
 │
-├── directives/            # SOPs — o QUE o agente deve fazer
-├── execution/             # Scripts determinísticos — FAZ de forma confiável
-├── docs/                  # Arquitetura e documentação do projeto
-├── scripts/               # Utilitários: init, adopt, health-check
-├── harness-template/      # Template base para novos projetos
-└── community-skills/      # Skills contribuídas pela comunidade
+├── directives/             ← Camada 1: SOPs — o QUE fazer
+│   ├── session-memory.md
+│   ├── context-management.md
+│   ├── observation-masking.md
+│   ├── subagent-dispatch.md
+│   ├── harness-evolution.md    ← protocolo + taxonomia Hashimoto
+│   ├── diagnose.md             ← investigação sistemática de falhas
+│   └── health-check.md
+│
+├── execution/              ← Camada 3: scripts determinísticos
+│   └── compress-history.py
+│
+├── scripts/                ← automação do harness
+│   ├── build-harness.py        ← gera .harness/index.md
+│   ├── sync-harness.py         ← propaga AGENTS.md → CLAUDE.md + GEMINI.md
+│   └── overrides/
+│       ├── claude-overrides.md
+│       └── gemini-overrides.md
+│
+├── docs/
+│   ├── architecture.md         ← diagrama das 3 camadas
+│   └── session-schema.md       ← schema de memória entre sessões
+│
+├── .harness/
+│   ├── index.md                ← lazy loading (auto-gerado)
+│   ├── config.json             ← protected paths e quality gate
+│   ├── memory/
+│   │   ├── last-session.json   ← estado estruturado entre sessões
+│   │   └── hashimoto-log.md    ← registro de erros → melhorias
+│   └── domains/
+│
+└── .github/workflows/
+    └── harness-check.yml       ← CI com 9 checks automáticos
 ```
 
 ---
@@ -158,16 +174,41 @@ Harness não é só para código:
 
 ---
 
+## Regra de Hashimoto
+
+Quando o agente cometer um erro:
+
+```
+1. Classifique o tipo:
+   A — Harness Miss         → trigger faltando no frontmatter da directive
+   B — Directive Incompleta → SOP não cobriu o edge case
+   C — Context Overflow     → janela cheia, compressão não acionada
+   D — Hallucination        → regra de verificação fraca
+   E — Permission Violation → tier de permissão ambíguo
+
+2. Corrija no arquivo indicado pela taxonomia
+3. Rode: python scripts/build-harness.py   (se Tipo A)
+4. Rode: python scripts/sync-harness.py    (qualquer tipo)
+5. Registre em: .harness/memory/hashimoto-log.md
+6. Commit: harness(tipo-A): [descrição]
+```
+
+> Taxonomia completa em `directives/harness-evolution.md`
+
+---
+
 ## Changelog
 
 ### v1.4.0 — atual
-- Identidade Bifrost · `.harness/config.json` · protected/allowed paths
-- Arquitetura DOE completa (`diretrizes.md` · `orquestracao.md` · `execucao.md`)
-- Intent Gate · SDLC completo (`/spec` `/plan` `/review` `/ship`)
-- Três Tiers de Permissão · Hierarquia de Memória L0→L4
-- Viés do Avaliador · `execution/validate_action.py`
-- `execution/handoff.py` · `execution/self-correction.py --open-pr`
-- Community Skills (Next.js, FastAPI, LGPD) · Agent Judge · Context7
+
+* ✨ `GEMINI.md` reescrito com comandos corretos para Antigravity
+* ✨ `docs/architecture.md` — diagrama das 3 camadas e fluxo de decisão
+* ✨ `scripts/build-harness.py` — gera `.harness/index.md` automaticamente
+* ✨ `scripts/sync-harness.py` — AGENTS.md vira fonte canônica
+* ✨ Taxonomia Hashimoto — 5 tipos (A–E) com protocolo de correção
+* ✨ `.harness/memory/last-session.json` — schema estruturado de sessão
+* ✨ CI consolidado em `harness-check.yml` com 9 checks automáticos
+* ✨ `.gitattributes` — line endings determinísticos Windows/Linux
 
 ### v1.2.0
 - Lazy loading de directives via `.harness/index.md`
@@ -184,3 +225,7 @@ Harness não é só para código:
 
 MIT — use, modifique, distribua, contribua.
 Contribua com skills: [bifrost-community-skills](https://github.com/JRoberto1/bifrost-community-skills)
+
+---
+
+[⭐ Star no GitHub](https://github.com/JRoberto1/Bifrost_Harness-Engineering) · [🐛 Issues](https://github.com/JRoberto1/Bifrost_Harness-Engineering/issues)
