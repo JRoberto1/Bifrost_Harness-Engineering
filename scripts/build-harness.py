@@ -10,6 +10,7 @@ Uso:
 import sys
 import os
 import re
+import difflib
 from pathlib import Path
 
 DIRECTIVES_DIR = Path(__file__).parent.parent / "directives"
@@ -97,8 +98,8 @@ def build_index() -> str:
 
 
 def normalize(content: str) -> str:
-    """Remove timestamp-sensitive lines para comparação estável."""
-    lines = content.splitlines()
+    """Remove timestamp-sensitive lines e normaliza line endings para comparação estável."""
+    lines = content.replace("\r", "").splitlines()
     filtered = [l for l in lines if not l.startswith("*Atualizado")]
     return "\n".join(filtered).strip()
 
@@ -115,28 +116,22 @@ def main():
 
         existing = INDEX_PATH.read_text(encoding="utf-8")
 
-        if normalize(generated) != normalize(existing):
+        gen_norm = normalize(generated)
+        ex_norm = normalize(existing)
+
+        if gen_norm != ex_norm:
             print("ERRO: .harness/index.md está desatualizado.")
             print("Execute: python scripts/build-harness.py")
             print()
 
-            # Mostra diff resumido
-            gen_lines = set(normalize(generated).splitlines())
-            ex_lines = set(normalize(existing).splitlines())
-
-            added = gen_lines - ex_lines
-            removed = ex_lines - gen_lines
-
-            if added:
-                print("Linhas novas (não no index atual):")
-                for l in sorted(added)[:5]:
-                    print(f"  + {l}")
-
-            if removed:
-                print("Linhas removidas (no index mas não nos frontmatters):")
-                for l in sorted(removed)[:5]:
-                    print(f"  - {l}")
-
+            diff = difflib.unified_diff(
+                ex_norm.splitlines(keepends=True),
+                gen_norm.splitlines(keepends=True),
+                fromfile="index.md (atual)",
+                tofile="index.md (gerado)",
+                n=2,
+            )
+            print("".join(list(diff)[:60]))
             sys.exit(1)
         else:
             print("OK: .harness/index.md está atualizado.")
