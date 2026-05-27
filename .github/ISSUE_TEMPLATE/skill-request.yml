@@ -1,0 +1,51 @@
+name: Skill Request
+description: Solicitação de nova skill para um domínio específico
+title: "[Skill] "
+labels: ["skill", "enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Skills expandem as capacidades do agente para domínios específicos.
+
+  - type: input
+    id: nome-skill
+    attributes:
+      label: Nome da skill
+      placeholder: "ex: security-auditor, api-designer, sql-optimizer"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: categoria
+    attributes:
+      label: Categoria
+      options:
+        - security
+        - performance
+        - architecture
+        - testing
+        - documentation
+        - data
+        - devops
+        - legal
+        - finance
+        - outra
+    validations:
+      required: true
+
+  - type: textarea
+    id: capacidade
+    attributes:
+      label: Capacidade que adiciona
+      placeholder: "Esta skill permite ao agente..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: caso-de-uso
+    attributes:
+      label: Caso de uso concreto
+      placeholder: "Exemplo real onde esta skill seria útil..."
+    validations:
+      required: true

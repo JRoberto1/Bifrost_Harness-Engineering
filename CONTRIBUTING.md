@@ -1,78 +1,71 @@
 # Contribuindo com o Bifrost
 
-## Como contribuir
+Bifrost melhora quando as pessoas que o usam reportam o que aprenderam.
+Este guia mostra como contribuir — seguindo o próprio protocolo do harness.
 
-### 1. Issues e Bug Reports
+## Formas de contribuir
 
-Use os templates em `.github/ISSUE_TEMPLATE/` para relatar bugs ou solicitar features.
+| Tipo | O que é | Como fazer |
+|------|---------|------------|
+| 🐛 Bug no harness | Comportamento inesperado do agente | Abra uma issue com o template Bug Report |
+| 📋 Nova directive | SOP que resolve um problema recorrente | Abra uma issue com o template Directive Proposal |
+| 🎯 Nova skill | Capacidade específica para um domínio | Abra uma issue com o template Skill Request |
+| 📝 Melhoria de docs | Correção ou expansão de documentação | PR direto com o template padrão |
+| 🔧 Melhoria de scripts | build-harness.py, sync-harness.py | PR com testes locais documentados |
 
-### 2. Pull Requests
+## Antes de abrir um PR
+
+Execute localmente e confirme que passa:
 
 ```bash
-# Fork e clone
-git clone https://github.com/SEU_USUARIO/Bifrost_Harness-Engineering
-cd Bifrost_Harness-Engineering
-
-# Crie uma branch para sua contribuição
-git checkout -b feat/minha-contribuicao
-
-# Após as mudanças
-git commit -m "feat: descrição da contribuição"
-git push origin feat/minha-contribuicao
+python scripts/build-harness.py --check
+python scripts/sync-harness.py --check
 ```
 
-Abra um PR para `main` descrevendo o que mudou e por quê.
+O CI vai rodar os mesmos checks — PRs que falham no CI não são revisados.
 
-### 3. Contribuir com Skills
+## Adicionando uma directive
 
-Skills da comunidade ficam em `community-skills/`. Para adicionar uma:
+1. Crie `directives/nome-da-directive.md`
+2. Adicione o frontmatter obrigatório no topo:
 
-1. Crie `community-skills/skills/[nome]/SKILL.md`
-2. Use o template em `.harness/skills/SKILL-template.md`
-3. Abra PR no repositório [bifrost-community-skills](https://github.com/JRoberto1/bifrost-community-skills)
-
+```yaml
 ---
-
-## Regras de Contribuição
-
-- Nunca modifique a lógica funcional de scripts em `execution/` sem teste correspondente
-- Siga a Regra de Hashimoto: cada bug encontrado deve virar uma regra no harness
-- Atualize `.harness/VERSION` se a contribuição representa uma nova versão
-- Execute `bash scripts/health-check.sh` antes de abrir PR
-- Mantenha a arquitetura de 3 camadas: `directives/` → `.harness/doe/` → `execution/`
-- Nunca commite `.env` ou credenciais — o pre-commit bloqueia, mas não force bypass
-
+id: nome-da-directive
+version: 1.0.0
+triggers: ["palavra1", "palavra2", "palavra3"]
+domain: universal | saas | api | automation | juridico-financeiro
+estimated_tokens: 600
+compatible_runtimes: [claude-code, antigravity, opencode, cursor]
+last_updated: YYYY-MM-DD
 ---
-
-## Padrão de Commits
-
-```
-feat(scope): nova funcionalidade
-fix(scope): correção de bug
-harness(tipo): mudança no harness ou directives
-docs: atualização de documentação
 ```
 
-Exemplos:
-```
-feat(directives): adiciona directive para testes de integração
-fix(execution): corrige validate_action.py no Windows
-harness(quality-gate): adiciona verificação de imports circulares
-docs: atualiza README com nova seção de domínios
+3. Regenere o índice:
+```bash
+python scripts/build-harness.py
+python scripts/sync-harness.py
 ```
 
----
+4. Confirme que o --check passa antes de commitar
 
-## Estrutura de uma Directive
+## Convenção de commits
 
-Use o template em `directives/DIRECTIVE-template.md` como base. Uma directive deve responder:
-- **Quando** carregar esta directive (match de intenção)
-- **O que** o agente deve fazer (passos verificáveis)
-- **Como verificar** que foi feito corretamente
+```
+feat(directive): adiciona diagnose para investigação de falhas
+fix(ci): corrige ordenação case-sensitive no build-harness
+harness(tipo-B): directive session-memory não cobria retomada parcial
+docs(readme): atualiza seção de compatibilidade
+```
 
----
+## Protocolo de review
 
-## Código de Conduta
+Todo PR passa pelo Protocolo PEV antes de ser mergeado:
+- **PLAN** — a mudança está descrita na issue ou no PR?
+- **EXECUTE** — o código faz o que a descrição diz?
+- **VERIFY** — o CI passa? Os checks locais passam?
 
-Seja direto, colaborativo e construtivo.
-Contribuições que melhoram a confiabilidade do harness são sempre bem-vindas.
+## Dúvidas
+
+Abra uma Discussion antes de abrir um PR para mudanças grandes.
+Para bugs simples e melhorias de docs, PR direto é bem-vindo.

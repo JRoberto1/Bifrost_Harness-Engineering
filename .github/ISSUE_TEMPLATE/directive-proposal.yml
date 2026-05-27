@@ -1,0 +1,57 @@
+name: Directive Proposal
+description: Proposta de nova directive (SOP) para o harness
+title: "[Directive] "
+labels: ["directive", "enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Uma boa directive resolve um problema recorrente de forma sistemática.
+        Descreva o problema que ela resolve, não a solução — a solução vem depois.
+
+  - type: input
+    id: nome
+    attributes:
+      label: Nome da directive
+      placeholder: "ex: error-recovery, code-review, deploy-checklist"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: dominio
+    attributes:
+      label: Domínio
+      options:
+        - universal
+        - saas
+        - api
+        - automation
+        - juridico-financeiro
+        - outro
+    validations:
+      required: true
+
+  - type: textarea
+    id: problema
+    attributes:
+      label: Problema que resolve
+      description: Descreva o comportamento problemático do agente sem a directive
+      placeholder: "Sem esta directive, o agente tende a..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: triggers
+    attributes:
+      label: Triggers sugeridos
+      description: Palavras ou frases que deveriam ativar esta directive
+      placeholder: "ex: deploy, publicar, produção, release"
+    validations:
+      required: true
+
+  - type: textarea
+    id: rascunho
+    attributes:
+      label: Rascunho do conteúdo (opcional)
+      description: Se já tiver uma ideia de como seria a directive
+      placeholder: "## Objetivo\n\n## Protocolo\n\n## Regras"

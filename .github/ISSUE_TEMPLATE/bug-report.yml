@@ -1,0 +1,62 @@
+name: Bug Report
+description: Comportamento inesperado do agente ou do harness
+title: "[Bug] "
+labels: ["bug", "harness"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Obrigado por reportar. Bugs bem documentados viram melhorias permanentes via Regra de Hashimoto.
+
+  - type: dropdown
+    id: tipo-hashimoto
+    attributes:
+      label: Tipo Hashimoto
+      description: Classifique o erro antes de descrever
+      options:
+        - "A — Harness Miss (trigger faltando, directive não carregada)"
+        - "B — Directive Incompleta (SOP não cobriu o edge case)"
+        - "C — Context Overflow (agente perdeu contexto)"
+        - "D — Hallucination (agente inventou sem marcar [VERIFICAR])"
+        - "E — Permission Violation (ação sem autorização do tier)"
+        - "Não sei classificar"
+    validations:
+      required: true
+
+  - type: input
+    id: runtime
+    attributes:
+      label: Runtime
+      placeholder: "Claude Code / Antigravity / OpenCode / Cursor"
+    validations:
+      required: true
+
+  - type: textarea
+    id: comportamento-esperado
+    attributes:
+      label: Comportamento esperado
+      placeholder: "O agente deveria..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: comportamento-observado
+    attributes:
+      label: Comportamento observado
+      placeholder: "O agente fez..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: directive-carregada
+    attributes:
+      label: Directive carregada (se souber)
+      placeholder: "session-memory / diagnose / harness-evolution / nenhuma / não sei"
+
+  - type: textarea
+    id: reproducao
+    attributes:
+      label: Como reproduzir
+      placeholder: "1. Tarefa dada ao agente\n2. O que aconteceu\n3. O que deveria ter acontecido"
+    validations:
+      required: true
