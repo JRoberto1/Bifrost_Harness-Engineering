@@ -58,16 +58,18 @@ def parse_frontmatter(content: str) -> dict:
 
 def build_index() -> str:
     """Gera o conteúdo completo do index.md."""
-    directives = sorted(DIRECTIVES_DIR.glob("*.md"))
-
-    rows = []
-    for path in directives:
+    # Parse tudo primeiro, depois ordena por id.lower() — determinístico em qualquer SO
+    entries = []
+    for path in DIRECTIVES_DIR.glob("*.md"):
         content = path.read_text(encoding="utf-8")
         fm = parse_frontmatter(content)
+        if fm.get("id"):
+            entries.append((path, fm))
 
-        if not fm.get("id"):
-            continue  # pula arquivos sem frontmatter
+    entries.sort(key=lambda x: x[1].get("id", "").lower())
 
+    rows = []
+    for path, fm in entries:
         directive_id = fm.get("id", path.stem)
         domain = fm.get("domain", "—")
         triggers = fm.get("triggers", [])
