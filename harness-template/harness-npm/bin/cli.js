@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // ============================================================
 // Bifrost — Harness Engineering CLI
-// v2.0.3 — upgrade command, session schema v1, next steps atualizados
+// v2.0.4 — fix readline stdin blocking no input piped
 // ============================================================
 
 const fs   = require("fs");
@@ -9,7 +9,7 @@ const path = require("path");
 const https = require("https");
 const readline = require("readline");
 
-const VERSION = "2.0.3";
+const VERSION = "2.0.4";
 const TARGET  = process.cwd();
 
 const c = {
@@ -20,9 +20,24 @@ const ok   = s => console.log(`  ${c.green}✓${c.reset} ${s}`);
 const warn = s => console.log(`  ${c.yellow}⚠${c.reset} ${s}`);
 const info = s => console.log(`  ${c.cyan}→${c.reset} ${s}`);
 
+// Única interface readline — canal bidirecional: bufferiza linhas E resolvers
+// Evita: (1) pausar stdin entre perguntas, (2) perder linhas em stdin piped
+const _rl = readline.createInterface({input:process.stdin,output:process.stdout});
+const _lines = [];    // linhas que chegaram antes do ask()
+const _waiters = [];  // resolvers esperando linha
+_rl.on("line", line => {
+  if(_waiters.length) _waiters.shift()(line);
+  else _lines.push(line);
+});
+_rl.on("close", () => { while(_waiters.length) _waiters.shift()(""); });
+function _closeRl(){ if(!_rl.closed) _rl.close(); }
+
 function ask(q, def="") {
-  const rl = readline.createInterface({input:process.stdin,output:process.stdout});
-  return new Promise(r => rl.question(def?`${q} [${def}]: `:`${q}: `, a=>{rl.close();r(a.trim()||def);}));
+  process.stdout.write(def?`${q} [${def}]: `:`${q}: `);
+  return new Promise(r => {
+    if(_lines.length) { r(_lines.shift().trim()||def); }
+    else { _waiters.push(line => r(line.trim()||def)); }
+  });
 }
 function askYN(q){return ask(`${q} [s/n]`,"n").then(a=>a.toLowerCase()==="s");}
 
@@ -319,6 +334,7 @@ async function cmdInstall(){
   info(`Verificar instalação: ${c.cyan}npx harness-engineering check${c.reset}`);
   info(`Ver métricas: ${c.cyan}npx harness-engineering stats${c.reset}`);
   console.log();
+  _closeRl();
 }
 
 // ── Skill ────────────────────────────────────────────────────
