@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // ============================================================
 // Bifrost — Harness Engineering CLI
-// v2.1.0 — skills reais de antigravity-awesome-skills (MIT)
+// v2.2.0 — comando adopt com detecção automática de stack
 // ============================================================
 
 const fs   = require("fs");
@@ -9,7 +9,7 @@ const path = require("path");
 const https = require("https");
 const readline = require("readline");
 
-const VERSION = "2.1.0";
+const VERSION = "2.2.0";
 const TARGET  = process.cwd();
 
 const c = {
@@ -204,6 +204,150 @@ const SESSION_SCHEMA = `# Session Schema v1\nSchema de memória entre sessões �
 
 const GITATTRIBUTES = `* text=auto eol=lf\n*.md text eol=lf\n*.py text eol=lf\n*.json text eol=lf\n*.yml text eol=lf\n`;
 
+// ── Detecção de stack ─────────────────────────────────────────
+function detectStack(){
+  const cwd=process.cwd();
+  const exists=f=>fs.existsSync(path.join(cwd,f));
+  const readJSON=f=>{try{return JSON.parse(fs.readFileSync(path.join(cwd,f),"utf8"));}catch{return null;}};
+
+  const result={name:"",stack:"",domains:{saas:false,api:false,automation:false,jf:false},bundle:"essentials",confidence:{}};
+
+  // Nome do projeto
+  const pkg=readJSON("package.json");
+  if(pkg?.name){
+    result.name=pkg.name.replace(/^@[^/]+\//,"");
+    result.confidence.name="package.json";
+  }
+
+  // Framework principal
+  const deps={...pkg?.dependencies,...pkg?.devDependencies};
+
+  if(exists("next.config.js")||exists("next.config.ts")||exists("next.config.mjs")||deps.next){
+    result.stack="Next.js";result.confidence.stack="next.config.* ou deps";
+  } else if(exists("vite.config.js")||exists("vite.config.ts")||deps.vite){
+    result.stack=deps.react?"React + Vite":deps.vue?"Vue + Vite":"Vite";result.confidence.stack="vite.config.*";
+  } else if(exists("nuxt.config.js")||exists("nuxt.config.ts")||deps.nuxt){
+    result.stack="Nuxt.js";result.confidence.stack="nuxt.config.*";
+  } else if(deps.express||deps.fastify||deps.hono){
+    result.stack=`Node.js + ${deps.express?"Express":deps.fastify?"Fastify":"Hono"}`;result.confidence.stack="package.json deps";
+  } else if(exists("pyproject.toml")||exists("requirements.txt")){
+    result.stack="Python";result.confidence.stack="pyproject.toml / requirements.txt";
+    try{
+      const req=fs.readFileSync(path.join(cwd,"requirements.txt"),"utf8");
+      if(req.includes("fastapi"))result.stack="Python + FastAPI";
+      else if(req.includes("django"))result.stack="Python + Django";
+      else if(req.includes("flask"))result.stack="Python + Flask";
+    }catch{}
+  } else if(exists("Cargo.toml")){
+    result.stack="Rust";result.confidence.stack="Cargo.toml";
+  } else if(exists("go.mod")){
+    result.stack="Go";result.confidence.stack="go.mod";
+  } else if(deps.react){
+    result.stack="React";result.confidence.stack="package.json deps";
+  }
+
+  // Domínios
+  if(exists("prisma")||deps.prisma||deps["@prisma/client"]){
+    result.domains.saas=true;result.confidence.saas="prisma/";
+  }
+  if(deps.stripe||deps["@stripe/stripe-js"]){
+    result.domains.saas=true;result.domains.jf=true;result.confidence.jf="stripe nas deps";
+  }
+  if(deps.express||deps.fastify||deps.hono||deps.axios||deps["@trpc/server"]){
+    result.domains.api=true;result.confidence.api="deps de servidor/cliente HTTP";
+  }
+  if(exists(".github/workflows")||exists("Dockerfile")||exists("docker-compose.yml")||exists("docker-compose.yaml")){
+    result.domains.automation=true;result.confidence.automation="workflows/ ou Dockerfile";
+  }
+
+  // Bundle sugerido
+  if(result.domains.saas&&result.stack.includes("Next"))result.bundle="saas";
+  else if(result.domains.api)result.bundle="api";
+  else result.bundle="essentials";
+
+  return result;
+}
+
+// ── writeHarnessFiles — lógica de escrita reutilizável ────────
+async function writeHarnessFiles({name,desc,stack,domains,skipFiles=[]}){
+  const skip=new Set(skipFiles);
+  // Normaliza automation/auto
+  const dom={saas:!!domains.saas,api:!!domains.api,auto:!!(domains.auto??domains.automation),jf:!!domains.jf};
+
+  // Core
+  const agents=agentsMd(name,desc,stack,dom);
+  if(!skip.has("AGENTS.md")){
+    write("AGENTS.md",agents,true);write("CLAUDE.md",agents,true);write("GEMINI.md",agents,true);
+    ok("AGENTS.md · CLAUDE.md · GEMINI.md");
+  }
+
+  write(".harness/VERSION",VERSION,true);ok(".harness/VERSION");
+  write(".harness/index.md",INDEX_MD,true);ok(".harness/index.md");
+  write(".harness/config.json",CONFIG_JSON,true);ok(".harness/config.json");
+  write(".harness/memory/last-session.json",LAST_SESSION_JSON,true);
+  write(".harness/memory/hashimoto-log.md",HASHIMOTO_LOG,true);
+  ok(".harness/memory/");
+
+  // Domínios
+  if(dom.saas){write(".harness/domains/saas.md",DOMAINS.saas,true);ok("domain: saas");}
+  if(dom.api) {write(".harness/domains/api.md",DOMAINS.api,true);ok("domain: api");}
+  if(dom.auto){write(".harness/domains/automation.md",DOMAINS.automation,true);ok("domain: automation");}
+  if(dom.jf)  {write(".harness/domains/juridico-financeiro.md",DOMAINS.jf,true);ok("domain: juridico-financeiro");}
+
+  // PEV
+  write(".harness/pev/pev.md",`# PEV — Plan · Execute · Verify\n\nPLAN    → critérios verificáveis antes de qualquer código\nEXECUTE → dentro do plano aprovado\nVERIFY  → falha = volta ao Plan com contexto de erro\n`,true);
+  ok(".harness/pev/pev.md");
+
+  // SKILL template
+  write(".harness/skills/SKILL-template.md",`# SKILL: [NOME]\n\n## Quando Usar\n[Descreva]\n\n## Procedimento\n1. [Passo 1]\n\n## Output\n[Descreva]\n`,true);
+
+  // Directives
+  write("directives/DIRECTIVE-template.md",`# Directive: [NOME]\n\n## Objetivo\n[Uma frase]\n\n## Fluxo\n1. [Passo]\n\n## Aprendizados\n- [data] [aprendizado]\n`,true);
+  ok("directives/");
+
+  // Execution
+  write("execution/SCRIPT-template.py",`#!/usr/bin/env python3\n"""Script determinístico — Camada 3 do Bifrost.\nUso: python execution/SCRIPT-template.py --input "valor" [--dry-run]\n"""\nimport argparse,json,sys\n\ndef main():\n    p=argparse.ArgumentParser()\n    p.add_argument("--input",required=True)\n    p.add_argument("--dry-run",action="store_true")\n    args=p.parse_args()\n    if args.dry_run:\n        print(json.dumps({"status":"success","dry_run":True,"simulacao":args.input}))\n        sys.exit(0)\n    print(json.dumps({"status":"success","resultado":args.input}))\n\nif __name__=="__main__":main()\n`,true);
+  ok("execution/SCRIPT-template.py");
+
+  // Claude commands
+  const cmds={
+    "spec.md":`# /spec — Spec-Driven Development\n\nEscreva a spec ANTES de qualquer código.\n\n## Instrução\nCrie um documento de spec com: visão geral, problema, escopo (inclui/não inclui), critérios de aceitação, impacto técnico.\nSalve em docs/specs/[nome].md. Aguarde aprovação antes de implementar.\n\n## Anti-Rationalization\n❌ "É urgente" → Urgência é motivo para ter spec, não para pular\n❌ "É simples" → Spec descobre complexidade antes do código\n`,
+    "plan.md":`# /plan — Decomposição em Tarefas\n\nDecomponha em tarefas com critérios verificáveis.\n\n## Instrução\nLeia a spec em docs/specs/ se existir. Crie tabela com: tarefa, arquivo(s), critério verificável, dependência.\nAguarde aprovação antes de executar.\n\n## Anti-Rationalization\n❌ "As tarefas são óbvias" → Se é óbvio, leva 2min escrever. Escreva.\n❌ "Posso fazer tudo de uma vez" → Tarefas grandes = contexto pesado = erros\n`,
+    "review.md":`# /review — Code Review Multi-Dimensional\n\nQuality gate antes de merge.\n\n## 5 Dimensões\n1. Correção — faz o que a spec diz?\n2. Legibilidade — nomes claros, responsabilidade única?\n3. Arquitetura — segue as camadas?\n4. Segurança — inputs validados, sem credenciais hardcoded?\n5. Performance — sem N+1, sem loops desnecessários?\n\n## Anti-Rationalization\n❌ "Eu escrevi, sei que está certo" → Revisão existe por isso\n❌ "Testes passam, está bom" → Testes passam código errado o tempo todo\n`,
+    "ship.md":`# /ship — Checklist de Produção\n\nNão faça deploy sem este checklist.\n\n## Checklist\n- [ ] /review executado e aprovado\n- [ ] Todos os testes passando\n- [ ] Sem console.log em produção\n- [ ] .env não commitado\n- [ ] docs/architecture.md atualizado se houve decisão nova\n- [ ] Build passa localmente\n- [ ] Plano de rollback definido\n\n## Anti-Rationalization\n❌ "É urgente, vou pular alguns" → Urgência não cancela segurança\n❌ "É só um hotfix" → Hotfixes sem checklist geram hotfixes de hotfix\n`,
+    "wrap-session.md":`# /wrap-session — Encerrar Sessão\n\nSalva o contexto antes de parar. Usa ~500 tokens na próxima sessão em vez de 20k.\n\n## Instrução\nResuma: decisões tomadas, tarefas concluídas, tarefas pendentes (com prioridade), próximo passo exato, aprendizados Hashimoto.\nSalve em .harness/memory/last-session.json e em .harness/memory/YYYY-MM-DD-[tema].md.\n`,
+    "brief-session.md":`# /brief-session — Retomar Sessão\n\nLê o contexto salvo. Economiza 97% dos tokens de reintrodução.\n\n## Instrução\nLeia .harness/memory/last-session.json. Apresente: o que foi concluído, o que está pendente, próximo passo. Aguarde instrução antes de executar.\n`,
+    "context-check.md":`# /context-check — Verificar Contexto\n\n## Instrução\nReporte: directives carregadas, turnos desta sessão, tokens estimados.\nSe --compress: execute python execution/compress-history.py --auto\n`,
+    "model-select.md":`# /model-select — Selecionar Modelo\n\n## Tabela\n| Tarefa | Modelo |\n|--------|--------|\n| Docs, testes, formatação | Haiku / Mini |\n| Código, implementação | Sonnet / padrão |\n| Arquitetura, debugging | Opus / Pro |\n\n## Instrução\nSe o usuário passou uma descrição, classifique e recomende em 2 linhas.\n`,
+  };
+  for(const[f,content] of Object.entries(cmds))write(`.claude/commands/${f}`,content,true);
+  ok(".claude/commands/ (8 comandos)");
+
+  // Docs
+  write("docs/architecture.md",`# Arquitetura\n\n> Preencha com a stack REAL do projeto.\n\n## Stack\n\n| Camada | Tecnologia |\n|--------|----------|\n| Frontend | ${stack} |\n\n## Camadas e Dependências\n\n\`\`\`\n[descreva as camadas]\n\`\`\`\n\n## ADRs\n\n### ADR-001: [Decisão]\n**Data:** | **Status:** Aceita\n**Contexto:** [por quê]\n**Decisão:** [o que]\n`,true);
+  write("docs/domain-rules.md",`# Regras de Domínio\n\n> Preencha com as regras de negócio REAIS.\n> Atualize sempre que encontrar uma regra nova (Hashimoto).\n\n## Schemas\n\n\`\`\`typescript\n// defina seus tipos aqui\n\`\`\`\n\n## Regras de Negócio\n\n### RN-001: [Nome]\n**Descrição:** [o que impõe]\n**Motivo:** [por que existe]\n`,true);
+  write("docs/coding-standards.md",`# Padrões de Código\n\n## Regras\n- Sem \`any\` em TypeScript\n- Erros tratados explicitamente\n- Logs estruturados\n- Commits: \`tipo(escopo): descrição\`\n  - feat, fix, docs, refactor, test, harness\n`,true);
+  ok("docs/ (architecture, domain-rules, coding-standards)");
+  write("docs/session-schema.md",SESSION_SCHEMA,true);
+  write(".gitattributes",GITATTRIBUTES,true);
+  ok(".gitattributes · docs/session-schema.md");
+
+  // Agents
+  write("agents/code-reviewer.md",`# Agente: Code Reviewer\n\nRevisor sênior com framework de 5 dimensões: Correção · Legibilidade · Arquitetura · Segurança · Performance.\n\n## Ferramentas\nRead, Bash(grep:*), Bash(npm test:*), Bash(npm run lint:*)\n`,true);
+  write("agents/security-auditor.md",`# Agente: Security Auditor\n\nAuditor focado em OWASP Top 10. Viés: tudo é vulnerável até provar o contrário.\n\n## Ferramentas\nRead, Bash(grep:*) — NUNCA Write ou Edit\n`,true);
+  ok("agents/ (code-reviewer, security-auditor)");
+
+  // .tmp + .gitignore
+  fs.mkdirSync(path.join(TARGET,".tmp"),{recursive:true});
+  write(".tmp/.gitkeep","# Temporários\n",true);
+  const gi=path.join(TARGET,".gitignore");
+  const toAdd=[".env",".env.*","!.env.example",".tmp/",".harness/skills/.index-cache.json"];
+  let existing=fs.existsSync(gi)?fs.readFileSync(gi,"utf8"):"";
+  const newLines=toAdd.filter(l=>!existing.includes(l));
+  if(newLines.length)fs.appendFileSync(gi,"\n# Bifrost\n"+newLines.join("\n")+"\n");
+  ok(".gitignore atualizado");
+}
+
 // ── Instalar ─────────────────────────────────────────────────
 async function cmdInstall(){
   console.log(`\n${c.bold}╔══════════════════════════════════════╗${c.reset}`);
@@ -232,79 +376,7 @@ async function cmdInstall(){
   };
 
   console.log(`\n${c.bold}[ 3/4 ] Instalando arquivos...\n${c.reset}`);
-
-  // Core
-  const agents=agentsMd(name,desc,stack,domains);
-  write("AGENTS.md",agents,true); write("CLAUDE.md",agents,true); write("GEMINI.md",agents,true);
-  ok("AGENTS.md · CLAUDE.md · GEMINI.md");
-
-  write(".harness/VERSION",VERSION,true); ok(".harness/VERSION");
-  write(".harness/index.md",INDEX_MD,true); ok(".harness/index.md");
-  write(".harness/config.json",CONFIG_JSON,true); ok(".harness/config.json");
-  write(".harness/memory/last-session.json",LAST_SESSION_JSON,true);
-  write(".harness/memory/hashimoto-log.md",HASHIMOTO_LOG,true);
-  ok(".harness/memory/");
-
-  // Domínios
-  if(domains.saas){write(".harness/domains/saas.md",DOMAINS.saas,true);ok("domain: saas");}
-  if(domains.api) {write(".harness/domains/api.md",DOMAINS.api,true);ok("domain: api");}
-  if(domains.auto){write(".harness/domains/automation.md",DOMAINS.automation,true);ok("domain: automation");}
-  if(domains.jf)  {write(".harness/domains/juridico-financeiro.md",DOMAINS.jf,true);ok("domain: juridico-financeiro");}
-
-  // PEV
-  write(".harness/pev/pev.md",`# PEV — Plan · Execute · Verify\n\nPLAN    → critérios verificáveis antes de qualquer código\nEXECUTE → dentro do plano aprovado\nVERIFY  → falha = volta ao Plan com contexto de erro\n`,true);
-  ok(".harness/pev/pev.md");
-
-  // SKILL template
-  write(".harness/skills/SKILL-template.md",`# SKILL: [NOME]\n\n## Quando Usar\n[Descreva]\n\n## Procedimento\n1. [Passo 1]\n\n## Output\n[Descreva]\n`,true);
-
-  // Directives
-  write("directives/DIRECTIVE-template.md",`# Directive: [NOME]\n\n## Objetivo\n[Uma frase]\n\n## Fluxo\n1. [Passo]\n\n## Aprendizados\n- [data] [aprendizado]\n`,true);
-  ok("directives/");
-
-  // Execution
-  write("execution/SCRIPT-template.py",`#!/usr/bin/env python3\n"""Script determinístico — Camada 3 do Bifrost.\nUso: python execution/SCRIPT-template.py --input "valor" [--dry-run]\n"""\nimport argparse,json,sys\n\ndef main():\n    p=argparse.ArgumentParser()\n    p.add_argument("--input",required=True)\n    p.add_argument("--dry-run",action="store_true")\n    args=p.parse_args()\n    if args.dry_run:\n        print(json.dumps({"status":"success","dry_run":True,"simulacao":args.input}))\n        sys.exit(0)\n    print(json.dumps({"status":"success","resultado":args.input}))\n\nif __name__=="__main__":main()\n`,true);
-  ok("execution/SCRIPT-template.py");
-
-  // Claude commands — Sprint B
-  const cmds={
-    "spec.md":`# /spec — Spec-Driven Development\n\nEscreva a spec ANTES de qualquer código.\n\n## Instrução\nCrie um documento de spec com: visão geral, problema, escopo (inclui/não inclui), critérios de aceitação, impacto técnico.\nSalve em docs/specs/[nome].md. Aguarde aprovação antes de implementar.\n\n## Anti-Rationalization\n❌ "É urgente" → Urgência é motivo para ter spec, não para pular\n❌ "É simples" → Spec descobre complexidade antes do código\n`,
-    "plan.md":`# /plan — Decomposição em Tarefas\n\nDecomponha em tarefas com critérios verificáveis.\n\n## Instrução\nLeia a spec em docs/specs/ se existir. Crie tabela com: tarefa, arquivo(s), critério verificável, dependência.\nAguarde aprovação antes de executar.\n\n## Anti-Rationalization\n❌ "As tarefas são óbvias" → Se é óbvio, leva 2min escrever. Escreva.\n❌ "Posso fazer tudo de uma vez" → Tarefas grandes = contexto pesado = erros\n`,
-    "review.md":`# /review — Code Review Multi-Dimensional\n\nQuality gate antes de merge.\n\n## 5 Dimensões\n1. Correção — faz o que a spec diz?\n2. Legibilidade — nomes claros, responsabilidade única?\n3. Arquitetura — segue as camadas?\n4. Segurança — inputs validados, sem credenciais hardcoded?\n5. Performance — sem N+1, sem loops desnecessários?\n\n## Anti-Rationalization\n❌ "Eu escrevi, sei que está certo" → Revisão existe por isso\n❌ "Testes passam, está bom" → Testes passam código errado o tempo todo\n`,
-    "ship.md":`# /ship — Checklist de Produção\n\nNão faça deploy sem este checklist.\n\n## Checklist\n- [ ] /review executado e aprovado\n- [ ] Todos os testes passando\n- [ ] Sem console.log em produção\n- [ ] .env não commitado\n- [ ] docs/architecture.md atualizado se houve decisão nova\n- [ ] Build passa localmente\n- [ ] Plano de rollback definido\n\n## Anti-Rationalization\n❌ "É urgente, vou pular alguns" → Urgência não cancela segurança\n❌ "É só um hotfix" → Hotfixes sem checklist geram hotfixes de hotfix\n`,
-    "wrap-session.md":`# /wrap-session — Encerrar Sessão\n\nSalva o contexto antes de parar. Usa ~500 tokens na próxima sessão em vez de 20k.\n\n## Instrução\nResuma: decisões tomadas, tarefas concluídas, tarefas pendentes (com prioridade), próximo passo exato, aprendizados Hashimoto.\nSalve em .harness/memory/last-session.json e em .harness/memory/YYYY-MM-DD-[tema].md.\n`,
-    "brief-session.md":`# /brief-session — Retomar Sessão\n\nLê o contexto salvo. Economiza 97% dos tokens de reintrodução.\n\n## Instrução\nLeia .harness/memory/last-session.json. Apresente: o que foi concluído, o que está pendente, próximo passo. Aguarde instrução antes de executar.\n`,
-    "context-check.md":`# /context-check — Verificar Contexto\n\n## Instrução\nReporte: directives carregadas, turnos desta sessão, tokens estimados.\nSe --compress: execute python execution/compress-history.py --auto\n`,
-    "model-select.md":`# /model-select — Selecionar Modelo\n\n## Tabela\n| Tarefa | Modelo |\n|--------|--------|\n| Docs, testes, formatação | Haiku / Mini |\n| Código, implementação | Sonnet / padrão |\n| Arquitetura, debugging | Opus / Pro |\n\n## Instrução\nSe o usuário passou uma descrição, classifique e recomende em 2 linhas.\n`,
-  };
-  for(const[f,content] of Object.entries(cmds)){
-    write(`.claude/commands/${f}`,content,true);
-  }
-  ok(".claude/commands/ (8 comandos)");
-
-  // Docs templates
-  write("docs/architecture.md",`# Arquitetura\n\n> Preencha com a stack REAL do projeto.\n\n## Stack\n\n| Camada | Tecnologia |\n|--------|----------|\n| Frontend | ${stack} |\n\n## Camadas e Dependências\n\n\`\`\`\n[descreva as camadas]\n\`\`\`\n\n## ADRs\n\n### ADR-001: [Decisão]\n**Data:** | **Status:** Aceita\n**Contexto:** [por quê]\n**Decisão:** [o que]\n`,true);
-  write("docs/domain-rules.md",`# Regras de Domínio\n\n> Preencha com as regras de negócio REAIS.\n> Atualize sempre que encontrar uma regra nova (Hashimoto).\n\n## Schemas\n\n\`\`\`typescript\n// defina seus tipos aqui\n\`\`\`\n\n## Regras de Negócio\n\n### RN-001: [Nome]\n**Descrição:** [o que impõe]\n**Motivo:** [por que existe]\n`,true);
-  write("docs/coding-standards.md",`# Padrões de Código\n\n## Regras\n- Sem \`any\` em TypeScript\n- Erros tratados explicitamente\n- Logs estruturados\n- Commits: \`tipo(escopo): descrição\`\n  - feat, fix, docs, refactor, test, harness\n`,true);
-  ok("docs/ (architecture, domain-rules, coding-standards)");
-  write("docs/session-schema.md",SESSION_SCHEMA,true);
-  write(".gitattributes",GITATTRIBUTES,true);
-  ok(".gitattributes · docs/session-schema.md");
-
-  // Agents
-  write("agents/code-reviewer.md",`# Agente: Code Reviewer\n\nRevisor sênior com framework de 5 dimensões: Correção · Legibilidade · Arquitetura · Segurança · Performance.\n\n## Ferramentas\nRead, Bash(grep:*), Bash(npm test:*), Bash(npm run lint:*)\n`,true);
-  write("agents/security-auditor.md",`# Agente: Security Auditor\n\nAuditor focado em OWASP Top 10. Viés: tudo é vulnerável até provar o contrário.\n\n## Ferramentas\nRead, Bash(grep:*) — NUNCA Write ou Edit\n`,true);
-  ok("agents/ (code-reviewer, security-auditor)");
-
-  // .tmp e .gitignore
-  fs.mkdirSync(path.join(TARGET,".tmp"),{recursive:true});
-  write(".tmp/.gitkeep","# Temporários\n",true);
-  const gi=path.join(TARGET,".gitignore");
-  const toAdd=[".env",".env.*","!.env.example",".tmp/",".harness/skills/.index-cache.json"];
-  let existing=fs.existsSync(gi)?fs.readFileSync(gi,"utf8"):"";
-  const newLines=toAdd.filter(l=>!existing.includes(l));
-  if(newLines.length)fs.appendFileSync(gi,"\n# Bifrost\n"+newLines.join("\n")+"\n");
-  ok(".gitignore atualizado");
+  await writeHarnessFiles({name,desc,stack,domains});
 
   // Skills essenciais
   console.log(`\n${c.bold}[ 4/4 ] Instalando skills essenciais...\n${c.reset}`);
@@ -350,6 +422,106 @@ async function cmdInstall(){
   info(`No Claude Code: leia ${c.cyan}CLAUDE.md${c.reset} antes de qualquer tarefa`);
   info(`No Antigravity: leia ${c.cyan}GEMINI.md${c.reset} antes de qualquer tarefa`);
   info(`Verificar instalação: ${c.cyan}npx harness-engineering check${c.reset}`);
+  info(`Ver métricas: ${c.cyan}npx harness-engineering stats${c.reset}`);
+  console.log();
+  _closeRl();
+}
+
+// ── Adopt ─────────────────────────────────────────────────────
+async function cmdAdopt(){
+  console.log(`\n${c.bold}🌉 Bifrost Adopt${c.reset} — adaptando harness ao projeto existente\n`);
+
+  // Detectar stack
+  process.stdout.write(`  ${c.cyan}Analisando projeto...${c.reset}`);
+  const detected=detectStack();
+  console.log(" feito.\n");
+
+  // Mostrar detecções
+  const hasDetection=detected.name||detected.stack||Object.values(detected.domains).some(Boolean);
+  if(hasDetection){
+    console.log("  O que encontrei:\n");
+    if(detected.name) console.log(`  📦 Nome:    ${c.blue}${detected.name}${c.reset} (${detected.confidence.name})`);
+    if(detected.stack)console.log(`  🔧 Stack:   ${c.blue}${detected.stack}${c.reset} (${detected.confidence.stack})`);
+    const domList=Object.entries(detected.domains).filter(([,v])=>v).map(([k])=>k);
+    if(domList.length)console.log(`  🎯 Domínios: ${c.blue}${domList.join(", ")}${c.reset}`);
+    console.log(`  📦 Bundle sugerido: ${c.cyan}${detected.bundle}${c.reset}\n`);
+  } else {
+    console.log(`  ${c.yellow}Nenhuma stack detectada automaticamente.${c.reset}\n`);
+  }
+
+  // Confirmar nome
+  const defaultName=detected.name||path.basename(process.cwd());
+  const projectName=await ask("Nome do projeto",defaultName);
+
+  // Confirmar stack
+  const projectStack=await ask("Stack principal (ex: Next.js, Django, Go)",detected.stack||"não definida");
+
+  // Confirmar domínios (s/n com sugestão baseada na detecção)
+  console.log();
+  const domainLabels={saas:"SaaS / produto web",api:"API / integrações",automation:"Automação / CI-CD",jf:"Jurídico / financeiro"};
+  const finalDomains={saas:false,api:false,auto:false,jf:false};
+  for(const[key,label] of Object.entries(domainLabels)){
+    const suggested=detected.domains[key]?"s":"n";
+    const ans=await ask(`  Domínio: ${label}?`,suggested);
+    const val=ans.toLowerCase()==="s"||ans.toLowerCase()==="y";
+    if(key==="automation")finalDomains.auto=val;
+    else finalDomains[key]=val;
+  }
+
+  // Harness existente?
+  const harnessExists=fs.existsSync(path.join(TARGET,".harness","VERSION"));
+  if(harnessExists){
+    console.log(`\n  ${c.yellow}⚠${c.reset} Harness detectado neste projeto.`);
+    const over=await ask("  Atualizar arquivos de infra (preserva AGENTS.md)?","s");
+    if(!over.toLowerCase().startsWith("s")){
+      console.log(`\n  Operação cancelada.\n`);_closeRl();return;
+    }
+  }
+
+  // Instalar arquivos
+  console.log(`\n${c.bold}  Instalando harness...\n${c.reset}`);
+  const agentsExists=fs.existsSync(path.join(TARGET,"AGENTS.md"));
+  const skipFiles=agentsExists?["AGENTS.md","CLAUDE.md","GEMINI.md"]:[];
+  if(agentsExists)console.log(`  ${c.cyan}ℹ${c.reset} AGENTS.md existente preservado — atualize manualmente com sua stack.\n`);
+
+  await writeHarnessFiles({
+    name:projectName,
+    desc:`Projeto ${projectStack}`,
+    stack:projectStack,
+    domains:finalDomains,
+    skipFiles
+  });
+
+  // Skills
+  const bundleAns=await ask(`\n  Instalar bundle "${detected.bundle}"?`,"s");
+  if(bundleAns.toLowerCase().startsWith("s")){
+    const bundleSkills=BUNDLES[detected.bundle]||BUNDLES.essentials;
+    console.log(`\n  Instalando bundle ${c.cyan}${detected.bundle}${c.reset}...\n`);
+    const skillsDir=path.join(TARGET,".harness","skills");
+    if(!fs.existsSync(skillsDir))fs.mkdirSync(skillsDir,{recursive:true});
+    let installed=0;
+    for(const skillName of bundleSkills){
+      const content=await fetchSkill(skillName);
+      if(content){
+        fs.writeFileSync(path.join(skillsDir,skillName+".md"),content);
+        console.log(`  ${c.green}✓${c.reset} ${skillName}`);
+        installed++;
+      }
+    }
+    if(installed===0)console.log(`  ${c.yellow}⚠${c.reset} Nenhuma skill instalada.\n`);
+  }
+
+  // Welcome
+  console.log(`\n${c.bold}╔══════════════════════════════════════╗${c.reset}`);
+  console.log(`${c.bold}║      🌉 Bifrost Adotado!             ║${c.reset}`);
+  console.log(`${c.bold}╚══════════════════════════════════════╝${c.reset}\n`);
+  console.log(`  Projeto: ${c.blue}${projectName}${c.reset}`);
+  console.log(`  Stack:   ${c.blue}${projectStack||"não detectada"}${c.reset}\n`);
+  console.log(`${c.bold}  Próximos passos:${c.reset}`);
+  if(agentsExists)info(`Revise ${c.cyan}AGENTS.md${c.reset} e ajuste as regras para seu projeto`);
+  else info(`Abra ${c.cyan}AGENTS.md${c.reset} e leia as regras do harness`);
+  info(`No Claude Code: leia ${c.cyan}CLAUDE.md${c.reset} antes de qualquer tarefa`);
+  info(`Verificar: ${c.cyan}npx harness-engineering check${c.reset}`);
   info(`Ver métricas: ${c.cyan}npx harness-engineering stats${c.reset}`);
   console.log();
   _closeRl();
@@ -445,7 +617,7 @@ function cmdCheck(){
     if(exists)ok(label); else{console.log(`  ${c.red}✗${c.reset} ${label}`);issues++;}
   }
   const sd=path.join(TARGET,".harness/skills");
-  const sc=fs.existsSync(sd)?fs.readdirSync(sd).filter(f=>fs.statSync(path.join(sd,f)).isDirectory()).length:0;
+  const sc=fs.existsSync(sd)?fs.readdirSync(sd).filter(f=>f.endsWith(".md")&&f!=="SKILL-template.md").length:0;
   sc>0?ok(`${sc} skill(s) instalada(s)`):warn("Sem skills — rode: npx harness-engineering skill --bundle essentials");
   console.log(`\n${"=".repeat(30)}`);
   if(issues===0)console.log(`${c.green}✅ Bifrost íntegro${c.reset}\n`);
@@ -502,12 +674,13 @@ async function cmdUpgrade(){
 // ── Entry point ───────────────────────────────────────────────
 const[,,cmd,...rest]=process.argv;
 switch(cmd){
+  case"adopt":   cmdAdopt();break;
   case"skill":   cmdSkill(rest);break;
   case"check":   cmdCheck();break;
   case"stats":   require("./stats.js").printStats();break;
   case"upgrade": cmdUpgrade();break;
   case"--version":case"-v": console.log(`bifrost-harness v${VERSION}`);break;
   case"--help":case"-h":
-    console.log(`\n${c.bold}🌉 Bifrost Harness Engineering v${VERSION}${c.reset}\n\nnpx harness-engineering              Instala o Bifrost\nnpx harness-engineering skill <nome> Instala uma skill\nnpx harness-engineering skill --bundle <bundle>\nnpx harness-engineering skill --list  Lista disponíveis\nnpx harness-engineering check         Verifica integridade\nnpx harness-engineering stats         Exibe métricas do harness\nnpx harness-engineering upgrade       Verifica e aplica atualizações\n\n${c.bold}Bundles:${c.reset} essentials · saas · api · security · automation · ai · sdlc\n`);break;
+    console.log(`\n${c.bold}🌉 Bifrost Harness Engineering v${VERSION}${c.reset}\n\nnpx harness-engineering              Instala o Bifrost (projeto novo)\nnpx harness-engineering adopt        Detecta stack e adota em projeto existente\nnpx harness-engineering skill <nome> Instala uma skill\nnpx harness-engineering skill --bundle <bundle>\nnpx harness-engineering skill --list  Lista disponíveis\nnpx harness-engineering check         Verifica integridade\nnpx harness-engineering stats         Exibe métricas do harness\nnpx harness-engineering upgrade       Verifica e aplica atualizações\n\n${c.bold}Bundles:${c.reset} essentials · saas · api · security\n`);break;
   default: cmdInstall();
 }
