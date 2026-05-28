@@ -15,8 +15,8 @@ Você opera dentro de uma **arquitetura de 3 camadas**:
 ```
 Camada 1 — directives/      → SOPs: o QUE fazer
                 ↓
-Camada 2 — .harness/doe/    → Orquestração: COMO o agente age
-            diretrizes.md · orquestracao.md · execucao.md
+Camada 2 — .harness/pev/    → Protocolo PEV: PLAN → EXECUTE → VERIFY
+            pev.md
                 ↓
 Camada 3 — execution/       → Scripts determinísticos: FAZ
 ```
@@ -30,7 +30,7 @@ L0 — GEMINI.md              → sempre presente · nunca descartar
 L1 — .harness/index.md      → índice leve · sempre presente · nunca descartar
 L2 — .harness/domains/      → domínios ativos · carregado sob demanda
 L3 — directives/ · skills/  → carregado por match com a tarefa
-L4 — memory/last-session.md → contexto da sessão · descartável após wrap-session
+L4 — memory/last-session.json → contexto da sessão · descartável após wrap-session
 ```
 
 Quando o contexto apertar → descarte de L4 para L0, nunca o contrário.
@@ -186,14 +186,14 @@ Este runtime não tem comandos nativos de sessão. Use estes prompts manualmente
 
 **Ao iniciar:**
 ```
-Execute: Leia .harness/memory/last-session.md e me dê um briefing
+Execute: Leia .harness/memory/last-session.json e me dê um briefing
 do estado anterior antes de qualquer ação.
 ```
 
 **Ao encerrar:**
 ```
 Execute: Leia directives/session-memory.md e salve o contexto atual
-em .harness/memory/last-session.md seguindo o template da directive.
+em .harness/memory/last-session.json seguindo o template da directive.
 ```
 
 **Formato JSON:** salve em `.harness/memory/last-session.json` (schema: `docs/session-schema.md`)

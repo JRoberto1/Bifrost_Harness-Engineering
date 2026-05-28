@@ -21,15 +21,13 @@ function printStats() {
     version = cfg.version || "?";
   } catch (_) {}
 
-  // Count directives with frontmatter (files starting with ---)
+  // Count all .md files in directives/ except DIRECTIVE-template.md
   let directivesCount = 0;
   try {
     const dirPath = path.join(TARGET, "directives");
-    const files = fs.readdirSync(dirPath).filter(f => f.endsWith(".md"));
-    for (const f of files) {
-      const content = fs.readFileSync(path.join(dirPath, f), "utf8");
-      if (content.trimStart().startsWith("---")) directivesCount++;
-    }
+    directivesCount = fs.readdirSync(dirPath)
+      .filter(f => f.endsWith(".md") && f !== "DIRECTIVE-template.md")
+      .length;
   } catch (_) {}
 
   // Runtime detection

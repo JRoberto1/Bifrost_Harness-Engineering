@@ -53,7 +53,7 @@ Se não disponível (Antigravity, OpenCode, etc.), aplique manualmente:
 
 ### Passo 3 — Salvar estado comprimido
 
-Salve o resumo em `.harness/memory/last-session.md`.
+Salve o resumo em `.harness/memory/last-session.json`.
 
 ## Estratégia de Carregamento por Runtime
 

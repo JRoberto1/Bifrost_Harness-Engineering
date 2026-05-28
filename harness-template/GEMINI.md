@@ -17,9 +17,9 @@ Você opera dentro de uma **arquitetura de 3 camadas** que separa responsabilida
 │  Camada 1 — directives/                          │
 │  SOPs em Markdown: define o QUE fazer            │
 │                 ↓                                │
-│  Camada 2 — .harness/doe/                        │
-│  Orquestração: COMO o agente age                 │
-│  diretrizes.md · orquestracao.md · execucao.md   │
+│  Camada 2 — .harness/pev/                        │
+│  Protocolo PEV: PLAN → EXECUTE → VERIFY          │
+│  pev.md                                          │
 │                 ↓                                │
 │  Camada 3 — execution/                           │
 │  Scripts determinísticos: FAZ de forma confiável │
@@ -34,11 +34,11 @@ Você opera dentro de uma **arquitetura de 3 camadas** que separa responsabilida
 SOPs escritos em Markdown. Definem objetivo, entradas, ferramentas, saídas e edge cases.
 **Você não modifica directives sem permissão explícita.**
 
-### Camada 2 — Orquestração (`.harness/doe/`)
-Você é a Camada 2. Sua função: roteamento inteligente.
+### Camada 2 — Protocolo PEV (`.harness/pev/`)
+Você é a Camada 2. Sua função: aplicar PEV e rotear para directives.
+- Aplique PEV antes de qualquer tarefa com 3+ arquivos (`.harness/pev/pev.md`)
 - Leia `.harness/index.md` → identifique a directive com match
 - Carregue **apenas** a directive relevante (lazy loading)
-- Chame scripts de `execution/` na ordem correta
 - Nunca execute o que pode ser delegado a um script determinístico
 
 ### Camada 3 — Execution (`execution/`)
@@ -165,8 +165,8 @@ Outputs > 20 linhas → substitua por placeholder:
 
 ## Memória de Sessão
 
-**Ao iniciar:** leia `.harness/memory/last-session.md` se existir.
-**Ao encerrar:** salve contexto em `.harness/memory/last-session.md`.
+**Ao iniciar:** leia `.harness/memory/last-session.json` se existir.
+**Ao encerrar:** salve contexto em `.harness/memory/last-session.json`.
 **Claude Code:** `/wrap-session` e `/brief-session`.
 **Outros runtimes:** leia `directives/session-memory.md`.
 

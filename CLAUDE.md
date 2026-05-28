@@ -14,8 +14,8 @@ Você opera dentro de uma **arquitetura de 3 camadas**:
 ```
 Camada 1 — directives/      → SOPs: o QUE fazer
                 ↓
-Camada 2 — .harness/doe/    → Orquestração: COMO o agente age
-            diretrizes.md · orquestracao.md · execucao.md
+Camada 2 — .harness/pev/    → Protocolo PEV: PLAN → EXECUTE → VERIFY
+            pev.md
                 ↓
 Camada 3 — execution/       → Scripts determinísticos: FAZ
 ```
@@ -29,7 +29,7 @@ L0 — CLAUDE.md              → sempre presente · nunca descartar
 L1 — .harness/index.md      → índice leve · sempre presente · nunca descartar
 L2 — .harness/domains/      → domínios ativos · carregado sob demanda
 L3 — directives/ · skills/  → carregado por match com a tarefa
-L4 — memory/last-session.md → contexto da sessão · descartável após wrap-session
+L4 — memory/last-session.json → contexto da sessão · descartável após wrap-session
 ```
 
 Quando o contexto apertar → descarte de L4 para L0, nunca o contrário.
@@ -181,7 +181,7 @@ No `/review` e ao revisar qualquer código:
 
 ## Memória de Sessão
 
-**Ao iniciar:** leia `.harness/memory/last-session.md` se existir.
+**Ao iniciar:** leia `.harness/memory/last-session.json` se existir.
 **Ao encerrar:** execute `/wrap-session`.
 **Formato JSON:** salve em `.harness/memory/last-session.json` (schema: `docs/session-schema.md`)
 **Compressão:** `/context-check --compress` após 8 turnos.

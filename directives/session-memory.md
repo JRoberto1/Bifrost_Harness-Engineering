@@ -18,7 +18,7 @@ O agente retoma exatamente de onde parou sem reexplicação.
 
 ```
 Sem Bifrost:  AGENTS.md + docs/ + histórico + reexplicação = 20k+ tokens
-Com Bifrost:  last-session.md = ~500 tokens       ▓▓▓░░░░░░░░░ -97%
+Com Bifrost:  last-session.json = ~500 tokens       ▓▓▓░░░░░░░░░ -97%
 ```
 
 ## Dois Artefatos de Memória
@@ -26,7 +26,7 @@ Com Bifrost:  last-session.md = ~500 tokens       ▓▓▓░░░░░░░
 O Bifrost usa dois arquivos complementares — cada um resolve um problema diferente:
 
 ```
-last-session.md        → contexto de conversa
+last-session.json        → contexto de conversa
                           O que falamos · decisões · próximo passo
                           Sobrescrito a cada sessão · ~500 tokens
 
@@ -39,7 +39,7 @@ claude-progress.txt    → progresso de feature no git
 
 | Situação | Use |
 |----------|-----|
-| Retomar uma conversa interrompida | `last-session.md` |
+| Retomar uma conversa interrompida | `last-session.json` |
 | Continuar uma feature de múltiplas sessões | `claude-progress.txt` |
 | Trocar de runtime | Ambos |
 | Onboarding de novo colaborador | `claude-progress.txt` |
@@ -80,7 +80,7 @@ Atualizado: [data] | Sessões: [N]
 **Qualquer outro runtime:**
 ```
 Leia directives/session-memory.md e encerre a sessão
-salvando o contexto em .harness/memory/last-session.md
+salvando o contexto em .harness/memory/last-session.json
 ```
 
 ### O que o wrap-session salva automaticamente
@@ -113,7 +113,7 @@ salvando o contexto em .harness/memory/last-session.md
 
 **Qualquer outro runtime:**
 ```
-Leia apenas .harness/memory/last-session.md
+Leia apenas .harness/memory/last-session.json
 e me dê um briefing antes de qualquer ação
 ```
 
@@ -128,14 +128,14 @@ Quando trocar Claude Code → Antigravity (ou qualquer outro):
 
 **2. No novo runtime:**
 ```
-Leia GEMINI.md e .harness/memory/last-session.md
+Leia GEMINI.md e .harness/memory/last-session.json
 Apresente um briefing e aguarde minha instrução
 ```
 
 ## Hooks Automáticos (Claude Code)
 
 O agente DEVE executar automaticamente:
-- **Ao iniciar sessão:** verificar se `last-session.md` existe e apresentar briefing
+- **Ao iniciar sessão:** verificar se `last-session.json` existe e apresentar briefing
 - **Ao encerrar sessão:** executar wrap mesmo sem comando explícito
 - **A cada 8 turnos:** sugerir `/context-check --compress`
 

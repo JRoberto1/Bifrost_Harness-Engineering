@@ -104,7 +104,7 @@ Para atualizar: npx harness-engineering@latest upgrade --force
 | | Harness | CLI |
 |---|---|---|
 | **O que é** | Arquivos copiados para seu projeto | Instalador e utilitários |
-| **Versão atual** | v1.4.0 | v2.4.0 |
+| **Versão atual** | v1.4.0 | v2.5.0 |
 | **Onde vive** | Dentro do seu projeto | npm global |
 | **Como atualizar** | `git pull` + `sync-harness.py` | `npx harness-engineering upgrade` |
 
@@ -286,7 +286,15 @@ Quando o agente cometer um erro:
 - ✨ CI consolidado em `harness-check.yml` com 9 checks automáticos
 - ✨ `.gitattributes` — line endings determinísticos Windows/Linux
 
-### CLI v2.4.0 — atual
+### CLI v2.5.0 — atual
+
+- 🐛 DOE → PEV em todos os harness files (`AGENTS.md`, `CLAUDE.md`, `GEMINI.md`, `harness-template/`)
+- 🐛 `harness-template/.harness/doe/` removido (3 arquivos órfãos)
+- 🐛 `session-memory.md`: `last-session.md` → `last-session.json` em todos os locais
+- 🐛 `context-management.md`: referência a `last-session.md` corrigida
+- 🔧 `stats.js`: conta todas as directives `.md` (antes filtrava por frontmatter — mostrava 1 em vez de 8)
+
+### CLI v2.4.0
 
 - ✨ 8 directives reais instaladas pelo CLI (`session-memory`, `context-management`, `observation-masking`, `subagent-dispatch`, `harness-evolution`, `diagnose`, `health-check`, `spec-driven`)
 - 🐛 `INDEX_MD` corrigido: seção "Camada 2 — DOE" removida, substituída por "Protocolo PEV" real

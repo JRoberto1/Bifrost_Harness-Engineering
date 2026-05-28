@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // ============================================================
 // Bifrost — Harness Engineering CLI
-// v2.4.0 — directives instaladas, INDEX_MD corrigido
+// v2.5.0 — DOE removido, last-session.json, stats count
 // ============================================================
 
 const fs   = require("fs");
@@ -9,7 +9,7 @@ const path = require("path");
 const https = require("https");
 const readline = require("readline");
 
-const VERSION = "2.4.0";
+const VERSION = "2.5.0";
 const TARGET  = process.cwd();
 
 const c = {
