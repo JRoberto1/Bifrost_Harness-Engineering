@@ -13,6 +13,7 @@
 | [observation-masking](../directives/observation-masking.md) | universal | `log`, `output longo`, `masking` +3 | 700 | claude-code, antigravity, opencode, cursor |
 | [office-hours](../directives/office-hours.md) | universal | `feature nova`, `reframing`, `office hours` +3 | 600 | claude-code, antigravity, opencode, cursor |
 | [session-memory](../directives/session-memory.md) | universal | `sessão`, `memória`, `retomar` +4 | 900 | claude-code, antigravity, opencode, cursor |
+| [spec-driven](../directives/spec-driven.md) | universal | `spec`, `especificação`, `antes de código` +3 | 500 | claude-code, antigravity, opencode, cursor |
 | [subagent-dispatch](../directives/subagent-dispatch.md) | universal | `sub-agente`, `tarefa pesada`, `contexto independente` +2 | 600 | claude-code, antigravity, opencode, cursor |
 
 ---

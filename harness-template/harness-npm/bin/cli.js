@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // ============================================================
 // Bifrost — Harness Engineering CLI
-// v2.3.0 — upgrade --force e doctor
+// v2.4.0 — directives instaladas, INDEX_MD corrigido
 // ============================================================
 
 const fs   = require("fs");
@@ -9,7 +9,7 @@ const path = require("path");
 const https = require("https");
 const readline = require("readline");
 
-const VERSION = "2.3.0";
+const VERSION = "2.4.0";
 const TARGET  = process.cwd();
 
 const c = {
@@ -30,6 +30,22 @@ function semverGte(a,b){
   }
   return true; // equal
 }
+
+// Lê arquivo bundled do pacote (bin/directives/, bin/skills/, etc.)
+function readBundledDir(dir, name){
+  const f=path.join(__dirname,dir,name);
+  try{return fs.readFileSync(f,"utf8");}catch(_){return "";}
+}
+
+// Directive constants — lidas de bin/directives/ (bundled no pacote npm)
+const DIRECTIVE_SESSION_MEMORY    = readBundledDir("directives","session-memory.md");
+const DIRECTIVE_CONTEXT_MGMT      = readBundledDir("directives","context-management.md");
+const DIRECTIVE_OBS_MASKING       = readBundledDir("directives","observation-masking.md");
+const DIRECTIVE_SUBAGENT          = readBundledDir("directives","subagent-dispatch.md");
+const DIRECTIVE_HARNESS_EVOLUTION = readBundledDir("directives","harness-evolution.md");
+const DIRECTIVE_DIAGNOSE          = readBundledDir("directives","diagnose.md");
+const DIRECTIVE_HEALTH_CHECK      = readBundledDir("directives","health-check.md");
+const DIRECTIVE_SPEC_DRIVEN       = readBundledDir("directives","spec-driven.md");
 
 // Única interface readline — canal bidirecional: bufferiza linhas E resolvers
 // Evita: (1) pausar stdin entre perguntas, (2) perder linhas em stdin piped
@@ -111,7 +127,7 @@ Stack: ${stack}
 \`\`\`
 Camada 1 — directives/      → SOPs: o QUE fazer
                 ↓
-Camada 2 — .harness/doe/    → Orquestração: COMO o agente age
+Camada 2 — .harness/pev/    → Protocolo PEV: PLAN → EXECUTE → VERIFY
                 ↓
 Camada 3 — execution/       → Scripts determinísticos: FAZ
 \`\`\`
@@ -192,7 +208,7 @@ const CONFIG_JSON = `{
   "quality_gate": { "block_secrets": true, "block_console_log": true, "block_typescript_any": true, "block_float_monetary": false, "block_env_commit": true }
 }`;
 
-const INDEX_MD = `# .harness/index.md — Índice Central do Bifrost\n<!-- v${VERSION} -->\n\n> Leia PRIMEIRO. Carregue apenas o que tiver match.\n\n## Directives\n\n| Arquivo | Palavras-chave | Quando carregar |\n|---------|---------------|----------------|\n| \`directives/session-memory.md\` | sessão, memória, retomar, parar, continuar | ao iniciar/encerrar |\n| \`directives/context-management.md\` | tokens, contexto, compressão, budget | ao gerenciar tokens |\n| \`directives/subagent-dispatch.md\` | subagente, delegar, tarefa pesada | tarefa > 20k tokens |\n| \`directives/observation-masking.md\` | log longo, output longo, masking | output > 20 linhas |\n| \`directives/harness-evolution.md\` | evolução, hashimoto, melhoria, erro recorrente | ao melhorar harness |\n| \`directives/diagnose.md\` | diagnóstico, investigar, por que quebrou | ao investigar falhas |\n| \`directives/spec-driven.md\` | spec, especificação, requisitos, antes de código | ao iniciar feature |\n\n## Domínios\n\n| Arquivo | Palavras-chave |\n|---------|---------------|\n| \`.harness/domains/saas.md\` | frontend, UI, autenticação, JWT, produto web |\n| \`.harness/domains/api.md\` | endpoint, API, REST, backend, rota |\n| \`.harness/domains/automation.md\` | script, automação, batch, pipeline |\n| \`.harness/domains/juridico-financeiro.md\` | contrato, cláusula, LGPD, valor, pagamento |\n\n## Camada 2 — DOE\n\n| Arquivo | Quando usar |\n|---------|------------|\n| \`.harness/doe/diretrizes.md\` | ao configurar system prompt global |\n| \`.harness/doe/orquestracao.md\` | ao montar prompt do planejador |\n| \`.harness/doe/execucao.md\` | ao montar prompt de subagente |\n`;
+const INDEX_MD = `# .harness/index.md — Índice Central do Bifrost\n<!-- v${VERSION} -->\n\n> Leia PRIMEIRO. Carregue apenas o que tiver match.\n\n## Directives\n\n| Arquivo | Palavras-chave | Quando carregar |\n|---------|---------------|----------------|\n| \`directives/session-memory.md\` | sessão, memória, retomar, parar, continuar | ao iniciar/encerrar |\n| \`directives/context-management.md\` | tokens, contexto, compressão, budget | ao gerenciar tokens |\n| \`directives/subagent-dispatch.md\` | subagente, delegar, tarefa pesada | tarefa > 20k tokens |\n| \`directives/observation-masking.md\` | log longo, output longo, masking | output > 20 linhas |\n| \`directives/harness-evolution.md\` | evolução, hashimoto, melhoria, erro recorrente | ao melhorar harness |\n| \`directives/diagnose.md\` | diagnóstico, investigar, por que quebrou | ao investigar falhas |\n| \`directives/health-check.md\` | saúde, verificar harness, integridade | ao iniciar sessão |\n| \`directives/spec-driven.md\` | spec, especificação, requisitos, antes de código | ao iniciar feature |\n\n## Domínios\n\n| Arquivo | Palavras-chave |\n|---------|---------------|\n| \`.harness/domains/saas.md\` | frontend, UI, autenticação, JWT, produto web |\n| \`.harness/domains/api.md\` | endpoint, API, REST, backend, rota |\n| \`.harness/domains/automation.md\` | script, automação, batch, pipeline |\n| \`.harness/domains/juridico-financeiro.md\` | contrato, cláusula, LGPD, valor, pagamento |\n\n## Camada 2 — Protocolo PEV\n\n| Arquivo | Quando usar |\n|---------|------------|\n| \`.harness/pev/pev.md\` | antes de qualquer tarefa complexa — PLAN → EXECUTE → VERIFY |\n`;
 
 const LAST_SESSION_JSON = `{
   "$schema": "https://bifrost.harness/session-schema/v1",
@@ -312,9 +328,22 @@ async function writeHarnessFiles({name,desc,stack,domains,skipFiles=[]}){
   // SKILL template
   write(".harness/skills/SKILL-template.md",`# SKILL: [NOME]\n\n## Quando Usar\n[Descreva]\n\n## Procedimento\n1. [Passo 1]\n\n## Output\n[Descreva]\n`,true);
 
-  // Directives
+  // Directives — 8 SOPs reais + template
+  const DIRECTIVES_LIST=[
+    ["session-memory.md",      DIRECTIVE_SESSION_MEMORY],
+    ["context-management.md",  DIRECTIVE_CONTEXT_MGMT],
+    ["observation-masking.md", DIRECTIVE_OBS_MASKING],
+    ["subagent-dispatch.md",   DIRECTIVE_SUBAGENT],
+    ["harness-evolution.md",   DIRECTIVE_HARNESS_EVOLUTION],
+    ["diagnose.md",            DIRECTIVE_DIAGNOSE],
+    ["health-check.md",        DIRECTIVE_HEALTH_CHECK],
+    ["spec-driven.md",         DIRECTIVE_SPEC_DRIVEN],
+  ];
+  for(const[f,content] of DIRECTIVES_LIST){
+    if(content) write(`directives/${f}`,content,true);
+  }
   write("directives/DIRECTIVE-template.md",`# Directive: [NOME]\n\n## Objetivo\n[Uma frase]\n\n## Fluxo\n1. [Passo]\n\n## Aprendizados\n- [data] [aprendizado]\n`,true);
-  ok("directives/");
+  ok("directives/ (8 directives + template)");
 
   // Execution
   write("execution/SCRIPT-template.py",`#!/usr/bin/env python3\n"""Script determinístico — Camada 3 do Bifrost.\nUso: python execution/SCRIPT-template.py --input "valor" [--dry-run]\n"""\nimport argparse,json,sys\n\ndef main():\n    p=argparse.ArgumentParser()\n    p.add_argument("--input",required=True)\n    p.add_argument("--dry-run",action="store_true")\n    args=p.parse_args()\n    if args.dry_run:\n        print(json.dumps({"status":"success","dry_run":True,"simulacao":args.input}))\n        sys.exit(0)\n    print(json.dumps({"status":"success","resultado":args.input}))\n\nif __name__=="__main__":main()\n`,true);
@@ -434,6 +463,7 @@ async function cmdInstall(){
   info(`No Antigravity: leia ${c.cyan}GEMINI.md${c.reset} antes de qualquer tarefa`);
   info(`Verificar instalação: ${c.cyan}npx harness-engineering check${c.reset}`);
   info(`Ver métricas: ${c.cyan}npx harness-engineering stats${c.reset}`);
+  info(`Automação avançada: ${c.cyan}git clone https://github.com/JRoberto1/Bifrost_Harness-Engineering${c.reset}`);
   console.log();
   _closeRl();
 }
@@ -534,6 +564,7 @@ async function cmdAdopt(){
   info(`No Claude Code: leia ${c.cyan}CLAUDE.md${c.reset} antes de qualquer tarefa`);
   info(`Verificar: ${c.cyan}npx harness-engineering check${c.reset}`);
   info(`Ver métricas: ${c.cyan}npx harness-engineering stats${c.reset}`);
+  info(`Automação avançada: ${c.cyan}git clone https://github.com/JRoberto1/Bifrost_Harness-Engineering${c.reset}`);
   console.log();
   _closeRl();
 }
@@ -621,6 +652,8 @@ function cmdCheck(){
     ["docs/coding-standards.md","docs/coding-standards.md"],
     [".claude/commands/spec.md",".claude/commands/spec.md"],
     [".claude/commands/wrap-session.md",".claude/commands/wrap-session.md"],
+    ["directives/session-memory.md","directives/session-memory.md"],
+    ["directives/harness-evolution.md","directives/harness-evolution.md"],
   ];
   let issues=0;
   for(const[label,p] of checks){
