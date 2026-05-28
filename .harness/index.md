@@ -5,6 +5,7 @@
 
 | Directive | Domínio | Triggers | Tokens est. | Runtimes |
 |-----------|---------|----------|-------------|----------|
+| [code-review](../directives/code-review.md) | universal | `review`, `revisão`, `revisar` +6 | 720 | claude-code, antigravity, opencode, cursor |
 | [context-management](../directives/context-management.md) | universal | `contexto`, `tokens`, `janela` +3 | 600 | claude-code, antigravity, opencode, cursor |
 | [deployment](../directives/deployment.md) | universal | `deploy`, `deployment`, `produção` +8 | 700 | claude-code, antigravity, opencode, cursor |
 | [diagnose](../directives/diagnose.md) | universal | `por que`, `quebrou`, `erro` +4 | 600 | claude-code, antigravity, opencode, cursor |
@@ -13,6 +14,7 @@
 | [health-check](../directives/health-check.md) | universal | `saúde`, `health`, `verificar sistema` +2 | 400 | claude-code, antigravity, opencode, cursor |
 | [observation-masking](../directives/observation-masking.md) | universal | `log`, `output longo`, `masking` +3 | 700 | claude-code, antigravity, opencode, cursor |
 | [office-hours](../directives/office-hours.md) | universal | `feature nova`, `reframing`, `office hours` +3 | 600 | claude-code, antigravity, opencode, cursor |
+| [refactoring](../directives/refactoring.md) | universal | `refactor`, `refatorar`, `refatoração` +6 | 680 | claude-code, antigravity, opencode, cursor |
 | [session-memory](../directives/session-memory.md) | universal | `sessão`, `memória`, `retomar` +4 | 900 | claude-code, antigravity, opencode, cursor |
 | [spec-driven](../directives/spec-driven.md) | universal | `spec`, `especificação`, `antes de código` +3 | 500 | claude-code, antigravity, opencode, cursor |
 | [subagent-dispatch](../directives/subagent-dispatch.md) | universal | `sub-agente`, `tarefa pesada`, `contexto independente` +2 | 600 | claude-code, antigravity, opencode, cursor |
