@@ -19,6 +19,8 @@ As skills incluídas neste pacote são derivadas do repositório
 | security-auditor | skills/security-auditor/SKILL.md |
 | api-design-principles | skills/api-design-principles/SKILL.md |
 | frontend-design | skills/frontend-design/SKILL.md |
+| performance-audit | Bifrost original |
+| accessibility | Bifrost original |
 
 ## Licença MIT
 

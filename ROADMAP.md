@@ -2,7 +2,7 @@
 
 > Última atualização: 2026-05-28
 
-## Estado atual — v1.6.0 (Harness) · v2.8.0 (CLI)
+## Estado atual — v1.7.0 (Harness) · v2.9.0 (CLI)
 
 O harness está estável e testado. O CLI foi validado end-to-end.
 Contribuições são bem-vindas nas áreas abaixo.
@@ -49,14 +49,24 @@ incluindo testing.md e deployment.md com protocolos acionáveis.
 
 ---
 
-## v1.7.0 — Harness (planejado)
+## ✅ v1.7.0 — Harness (concluído em 2026-05-28)
 
-**Foco: Directives de arquitetura e onboarding**
+**Foco: Directives de arquitetura e onboarding + skills de qualidade**
 
-- [ ] Directive `architecture.md` — decisões arquiteturais e ADRs
-- [ ] Directive `onboarding.md` — integrar novo desenvolvedor ao projeto
-- [ ] Skill `performance-audit` — auditoria de performance
-- [ ] Skill `accessibility` — checklist de acessibilidade web
+- [x] Directive `architecture.md` — decisões arquiteturais e ADRs ✓ Sprint 23
+- [x] Directive `onboarding.md` — integrar novo desenvolvedor ao projeto ✓ Sprint 23
+- [x] Skill `performance-audit` — auditoria de performance web e API ✓ Sprint 23
+- [x] Skill `accessibility` — checklist WCAG 2.1 AA ✓ Sprint 23
+
+---
+
+## v1.8.0 — Harness (planejado)
+
+**Foco: Protocolos operacionais**
+
+- [ ] Directive `incident-response.md` — protocolo de resposta a incidentes
+- [ ] Directive `api-design.md` — design de APIs REST e GraphQL
+- [ ] Bundle `quality` com: lint-and-validate + code-review + testing
 
 ---
 
