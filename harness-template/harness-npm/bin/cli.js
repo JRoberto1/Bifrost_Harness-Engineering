@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // ============================================================
 // Bifrost — Harness Engineering CLI
-// v2.0.5 — last-session.json, sync-harness.sh, directives sync
+// v2.1.0 — skills reais de antigravity-awesome-skills (MIT)
 // ============================================================
 
 const fs   = require("fs");
@@ -9,7 +9,7 @@ const path = require("path");
 const https = require("https");
 const readline = require("readline");
 
-const VERSION = "2.0.5";
+const VERSION = "2.1.0";
 const TARGET  = process.cwd();
 
 const c = {
@@ -49,20 +49,33 @@ function write(p,content,overwrite=false){
   return true;
 }
 
-function fetchSkill(_name){
-  // Skills externas temporariamente indisponíveis.
-  // Adicione skills manualmente em .harness/skills/
-  return Promise.resolve(false);
+// Lê skill do pacote npm (bin/skills/<name>.md) — MIT, antigravity-awesome-skills
+function fetchSkill(name){
+  const skillFile = path.join(__dirname, "skills", name + ".md");
+  if(!fs.existsSync(skillFile)) return Promise.resolve(false);
+  try { return Promise.resolve(fs.readFileSync(skillFile, "utf8")); }
+  catch(_){ return Promise.resolve(false); }
+}
+
+// Extrai descrição do frontmatter YAML de um arquivo de skill
+function skillDesc(name){
+  const skillFile = path.join(__dirname, "skills", name + ".md");
+  if(!fs.existsSync(skillFile)) return "";
+  try {
+    const lines = fs.readFileSync(skillFile, "utf8").split("\n");
+    for(const l of lines){
+      const m = l.match(/^description:\s*["']?(.+?)["']?\s*$/);
+      if(m) return m[1].slice(0, 60) + (m[1].length > 60 ? "…" : "");
+    }
+  } catch(_){}
+  return "";
 }
 
 const BUNDLES = {
-  essentials:["brainstorming","debugging-strategies","doc-coauthoring","lint-and-validate","create-pr"],
-  saas:["brainstorming","architecture","frontend-design","api-design-principles","test-driven-development","security-auditor","create-pr"],
-  api:["api-design-principles","api-security-best-practices","test-driven-development","debugging-strategies","typescript-expert"],
-  security:["security-auditor","api-security-best-practices","sql-injection-testing","vulnerability-scanner"],
-  automation:["workflow-automation","debugging-strategies","python-patterns","lint-and-validate"],
-  ai:["rag-engineer","prompt-engineer","brainstorming","architecture"],
-  sdlc:["spec-driven-development","planning-and-task-breakdown","incremental-implementation","test-driven-development","code-review-and-quality","security-and-hardening","git-workflow-and-versioning","shipping-and-launch"],
+  essentials: ["brainstorming","debugging-strategies","doc-coauthoring","lint-and-validate","create-pr"],
+  saas:       ["frontend-design","api-design-principles","lint-and-validate","create-pr"],
+  api:        ["api-design-principles","lint-and-validate","create-pr"],
+  security:   ["security-auditor","lint-and-validate"],
 };
 
 // ── Conteúdo dos arquivos ──────────────────────────────────
@@ -301,12 +314,17 @@ async function cmdInstall(){
   for(const skill of skills){
     process.stdout.write(`  ${skill}... `);
     const s=await fetchSkill(skill);
-    console.log(s?`${c.green}✓${c.reset}`:`${c.yellow}indisponível${c.reset}`);
-    if(s)installed++;
+    if(s){
+      fs.writeFileSync(path.join(TARGET,".harness","skills",skill+".md"),s);
+      console.log(`${c.green}✓${c.reset}`);
+      installed++;
+    } else {
+      console.log(`${c.yellow}não encontrada${c.reset}`);
+    }
   }
   if(installed===0){
-    console.log(`\n  ${c.yellow}⚠${c.reset} Skills externas temporariamente indisponíveis.`);
-    console.log(`  Adicione skills manualmente em ${c.cyan}.harness/skills/${c.reset}\n`);
+    console.log(`\n  ${c.yellow}⚠${c.reset} Nenhuma skill instalada.`);
+    console.log(`  Rode: ${c.cyan}npx harness-engineering skill --bundle essentials${c.reset}\n`);
   }
 
   // Registrar skills no AGENTS.md
@@ -343,10 +361,29 @@ async function cmdSkill(args){
     console.log(`\n${c.red}Bifrost não instalado.${c.reset} Rode: npx harness-engineering\n`);return;
   }
   if(!args.length||args[0]==="--list"){
-    console.log(`\n${c.bold}Bundles disponíveis:\n${c.reset}`);
-    for(const[b,s]of Object.entries(BUNDLES))console.log(`  ${c.cyan}${b}${c.reset}: ${s.join(", ")}`);
-    console.log(`\nUso: npx harness-engineering skill <nome>`);
-    console.log(`     npx harness-engineering skill --bundle <bundle>\n`);return;
+    console.log(`\n${c.bold}Skills disponíveis${c.reset} (fonte: antigravity-awesome-skills · MIT)\n`);
+    const seen=new Set();
+    for(const[bundle,skills]of Object.entries(BUNDLES)){
+      console.log(`${c.bold}Bundle: ${c.cyan}${bundle}${c.reset}`);
+      const last=skills.length-1;
+      skills.forEach((sk,i)=>{
+        const prefix=i===last?"└──":"├──";
+        if(seen.has(sk)){
+          // Skill já mostrada em bundle anterior
+          const firstBundle=Object.entries(BUNDLES).find(([,v])=>v.includes(sk)&&v!==skills)?.[0];
+          console.log(`  ${prefix} ${sk} ${c.yellow}(ver ${firstBundle||"essentials"})${c.reset}`);
+        } else {
+          const desc=skillDesc(sk);
+          console.log(`  ${prefix} ${c.green}${sk}${c.reset}${desc?` — ${desc}`:""}`);
+          seen.add(sk);
+        }
+      });
+      console.log();
+    }
+    console.log(`Instalar bundle: ${c.cyan}npx harness-engineering skill --bundle essentials${c.reset}`);
+    console.log(`Instalar skill:  ${c.cyan}npx harness-engineering skill brainstorming${c.reset}`);
+    console.log(`Atribuição: https://github.com/sickn33/antigravity-awesome-skills\n`);
+    return;
   }
   let skillNames=[];
   if(args[0]==="--bundle"){
@@ -356,15 +393,22 @@ async function cmdSkill(args){
     console.log(`\nInstalando bundle '${c.cyan}${args[1]}${c.reset}' (${skillNames.length} skills)...\n`);
   }else{skillNames=[args[0]];console.log(`\nInstalando '${c.cyan}${args[0]}${c.reset}'...\n`);}
   let installed=0;
+  const skillsDir=path.join(TARGET,".harness","skills");
+  if(!fs.existsSync(skillsDir))fs.mkdirSync(skillsDir,{recursive:true});
   for(const skill of skillNames){
     process.stdout.write(`  ${skill}... `);
     const s=await fetchSkill(skill);
-    console.log(s?`${c.green}✓${c.reset}`:`${c.yellow}indisponível${c.reset}`);
-    if(s)installed++;
+    if(s){
+      fs.writeFileSync(path.join(skillsDir,skill+".md"),s);
+      console.log(`${c.green}✓${c.reset}`);
+      installed++;
+    } else {
+      console.log(`${c.yellow}não encontrada${c.reset}`);
+      console.log(`    Disponíveis: ${c.cyan}npx harness-engineering skill --list${c.reset}`);
+    }
   }
   if(installed===0){
-    console.log(`\n  ${c.yellow}⚠${c.reset} Skills externas temporariamente indisponíveis.`);
-    console.log(`  Adicione skills manualmente em ${c.cyan}.harness/skills/${c.reset}\n`);
+    console.log(`\n  ${c.yellow}⚠${c.reset} Nenhuma skill instalada. Rode: ${c.cyan}npx harness-engineering skill --list${c.reset}\n`);
   }
   // Registrar
   const ap=path.join(TARGET,"AGENTS.md");

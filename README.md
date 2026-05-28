@@ -104,7 +104,7 @@ Para atualizar: npx harness-engineering@latest upgrade --force
 | | Harness | CLI |
 |---|---|---|
 | **O que é** | Arquivos copiados para seu projeto | Instalador e utilitários |
-| **Versão atual** | v1.4.0 | v2.0.5 |
+| **Versão atual** | v1.4.0 | v2.1.0 |
 | **Onde vive** | Dentro do seu projeto | npm global |
 | **Como atualizar** | `git pull` + `sync-harness.py` | `npx harness-engineering upgrade` |
 
@@ -286,6 +286,15 @@ Quando o agente cometer um erro:
 - ✨ CI consolidado em `harness-check.yml` com 9 checks automáticos
 - ✨ `.gitattributes` — line endings determinísticos Windows/Linux
 
+### CLI v2.1.0
+
+- ✨ 8 skills reais de `antigravity-awesome-skills` (MIT) incluídas no pacote npm
+- ✨ `fetchSkill` lê de `bin/skills/` local — sem dependências externas em runtime
+- ✨ `skill --list` exibe descrições reais do frontmatter + árvore por bundle
+- 🔧 `BUNDLES` corrigido: 4 bundles (essentials, saas, api, security) com skills reais
+- 🔧 Skill instalada é escrita em `.harness/skills/<nome>.md` no projeto do usuário
+- 🔧 `package.json` com campo `files` para incluir `bin/skills/` no publish
+
 ### CLI v2.0.5
 
 - 🐛 Template do `AGENTS.md` e comandos `/wrap-session` `/brief-session` referenciavam `last-session.md` — corrigido para `last-session.json`
@@ -326,6 +335,14 @@ Quando o agente cometer um erro:
 
 MIT — use, modifique, distribua, contribua.
 Contribua com skills: [bifrost-community-skills](https://github.com/JRoberto1/bifrost-community-skills)
+
+---
+
+## Atribuição
+
+As skills incluídas no CLI são derivadas de
+[antigravity-awesome-skills](https://github.com/sickn33/antigravity-awesome-skills)
+por sickn33 e contribuidores, licenciadas sob MIT.
 
 ---
 
