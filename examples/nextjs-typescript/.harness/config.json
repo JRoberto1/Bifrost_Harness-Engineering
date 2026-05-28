@@ -1,0 +1,27 @@
+{
+  "version": "1.4.0",
+  "project": "E-commerce Next.js",
+  "stack": "nextjs-14-typescript",
+  "protected_paths": [
+    ".env",
+    ".env.*",
+    ".env.local",
+    "secrets/",
+    "prisma/migrations/"
+  ],
+  "allowed_paths": [
+    "app/",
+    "components/",
+    "lib/",
+    "prisma/schema.prisma",
+    "directives/",
+    "AGENTS.md"
+  ],
+  "quality_gate": {
+    "block_secrets": true,
+    "block_console_log": true,
+    "block_typescript_any": true,
+    "block_float_monetary": true,
+    "block_env_commit": true
+  }
+}

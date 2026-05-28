@@ -191,6 +191,18 @@ bash scripts/health-check.sh      # verifica saúde do harness
 
 ---
 
+## Documentação
+
+| Documento | Descrição |
+|-----------|-----------|
+| [Quickstart](docs/quickstart.md) | Instale e configure o Bifrost em 5 minutos |
+| [FAQ](docs/faq.md) | Perguntas frequentes: Hashimoto, memória, CI, upgrades |
+| [Arquitetura](docs/architecture.md) | Diagrama das 3 camadas e fluxo de decisão |
+| [Session Schema](docs/session-schema.md) | Schema de memória entre sessões |
+| [Exemplo Next.js](examples/nextjs-typescript/) | Harness real instalado em projeto Next.js 14 + TypeScript |
+
+---
+
 ## Compatibilidade
 
 | Runtime | Arquivo | SDLC | Memória | Tokens |

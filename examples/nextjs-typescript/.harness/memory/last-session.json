@@ -1,0 +1,33 @@
+{
+  "$schema": "https://bifrost.harness/session-schema/v1",
+  "session_id": "2025-05-27T14:32:00Z",
+  "timestamp": "2025-05-27T16:45:00Z",
+  "runtime": "claude-code",
+  "harness_version": "1.4.0",
+  "task_summary": "Implementei o checkout flow completo com Stripe: criação de PaymentIntent, confirmação de pagamento e página de sucesso. Componentes: CheckoutForm (Client), OrderSummary (Server), PaymentStatus (Client). Rota API: /api/checkout/create-intent.",
+  "files_modified": [
+    "app/(checkout)/checkout/page.tsx",
+    "app/(checkout)/checkout/success/page.tsx",
+    "app/api/checkout/create-intent/route.ts",
+    "components/features/checkout/CheckoutForm.tsx",
+    "components/features/checkout/OrderSummary.tsx",
+    "components/features/checkout/PaymentStatus.tsx",
+    "lib/stripe.ts",
+    "prisma/schema.prisma"
+  ],
+  "open_issues": [
+    "Webhook /api/stripe/webhook não implementado — eventos payment_intent.succeeded não processados",
+    "Falta tratamento de erro para cartão recusado no CheckoutForm",
+    "OrderSummary não exibe frete calculado — aguarda integração com Correios API"
+  ],
+  "next_action": "Implementar webhook /api/stripe/webhook para processar payment_intent.succeeded e atualizar status do pedido no banco via Prisma. Ver docs: https://stripe.com/docs/webhooks",
+  "context_tokens_used": 18420,
+  "hashimoto_events": [
+    {
+      "type": "B",
+      "file_fixed": "directives/nextjs-patterns.md",
+      "description": "Directive não cobria o caso de Server Actions em checkout — adicionada seção sobre 'use server' e validação de schema com Zod",
+      "timestamp": "2025-05-27T15:10:00Z"
+    }
+  ]
+}
