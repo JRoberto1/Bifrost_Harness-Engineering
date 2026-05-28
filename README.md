@@ -104,7 +104,7 @@ Para atualizar: npx harness-engineering@latest upgrade --force
 | | Harness | CLI |
 |---|---|---|
 | **O que é** | Arquivos copiados para seu projeto | Instalador e utilitários |
-| **Versão atual** | v1.4.0 | v2.1.0 |
+| **Versão atual** | v1.4.0 | v2.3.0 |
 | **Onde vive** | Dentro do seu projeto | npm global |
 | **Como atualizar** | `git pull` + `sync-harness.py` | `npx harness-engineering upgrade` |
 
@@ -285,6 +285,20 @@ Quando o agente cometer um erro:
 - ✨ `.harness/memory/last-session.json` — schema estruturado de sessão
 - ✨ CI consolidado em `harness-check.yml` com 9 checks automáticos
 - ✨ `.gitattributes` — line endings determinísticos Windows/Linux
+
+### CLI v2.3.0 — atual
+
+- ✨ `upgrade --force` — aplica atualização local, preserva `AGENTS.md`, `directives/`, `.harness/memory/` e `docs/`
+- ✨ `doctor` — diagnóstico completo do ambiente (Node.js, Python, Git, harness, arquivos, versão npm)
+- 🔧 Entry point convertido para async IIFE (compatível com Node.js v24 CommonJS)
+- 🔧 Comparação de versão semver sem `localeCompare` (sem dependências externas)
+
+### CLI v2.2.0
+
+- ✨ Comando `adopt` — detecta stack automaticamente e adota harness em projeto existente
+- ✨ `detectStack()` — lê `package.json`, `next.config.*`, `vite.config.*`, `Cargo.toml`, `go.mod`, `pyproject.toml`
+- 🔧 `writeHarnessFiles({name,desc,stack,domains,skipFiles=[]})` — extração de lógica de escrita do `cmdInstall`
+- 🔧 `cmdCheck` corrigido: contagem de skills usa `.endsWith(".md")` (não `.isDirectory()`)
 
 ### CLI v2.1.0
 

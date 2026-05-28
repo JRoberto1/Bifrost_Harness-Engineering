@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // ============================================================
 // Bifrost — Harness Engineering CLI
-// v2.2.0 — comando adopt com detecção automática de stack
+// v2.3.0 — upgrade --force e doctor
 // ============================================================
 
 const fs   = require("fs");
@@ -9,7 +9,7 @@ const path = require("path");
 const https = require("https");
 const readline = require("readline");
 
-const VERSION = "2.2.0";
+const VERSION = "2.3.0";
 const TARGET  = process.cwd();
 
 const c = {
@@ -19,6 +19,17 @@ const c = {
 const ok   = s => console.log(`  ${c.green}✓${c.reset} ${s}`);
 const warn = s => console.log(`  ${c.yellow}⚠${c.reset} ${s}`);
 const info = s => console.log(`  ${c.cyan}→${c.reset} ${s}`);
+
+// Compara versões semver (sem dependência externa)
+function semverGte(a,b){
+  const pa=a.split(".").map(n=>parseInt(n,10)||0);
+  const pb=b.split(".").map(n=>parseInt(n,10)||0);
+  for(let i=0;i<3;i++){
+    if((pa[i]||0)>(pb[i]||0))return true;
+    if((pa[i]||0)<(pb[i]||0))return false;
+  }
+  return true; // equal
+}
 
 // Única interface readline — canal bidirecional: bufferiza linhas E resolvers
 // Evita: (1) pausar stdin entre perguntas, (2) perder linhas em stdin piped
@@ -625,62 +636,199 @@ function cmdCheck(){
 }
 
 // ── Upgrade ──────────────────────────────────────────────────
-async function cmdUpgrade(){
+async function cmdUpgrade(args=[]){
+  const force=args.includes("--force");
+  const cwd=process.cwd();
+
+  // Versão local do harness instalado no projeto
   let current="?";
   try{
-    current=fs.readFileSync(path.join(TARGET,".harness/VERSION"),"utf8").trim();
+    current=fs.readFileSync(path.join(cwd,".harness","VERSION"),"utf8").trim();
   }catch(_){
     try{
-      const cfg=JSON.parse(fs.readFileSync(path.join(TARGET,".harness/config.json"),"utf8"));
+      const cfg=JSON.parse(fs.readFileSync(path.join(cwd,".harness","config.json"),"utf8"));
       current=cfg.version||"?";
     }catch(_){}
   }
 
   console.log(`\n${c.bold}🌉 Bifrost Upgrade${c.reset}\n${"=".repeat(30)}\n`);
-  info(`Versão instalada: ${current}`);
+  info(`CLI instalado: v${VERSION}`);
+  info(`Harness no projeto: ${current}`);
   process.stdout.write(`  Verificando npm... `);
 
   const latest=await new Promise(resolve=>{
-    https.get(
+    const req=https.get(
       "https://registry.npmjs.org/harness-engineering/latest",
       {headers:{"Accept":"application/json"}},
       res=>{
         let data="";
         res.on("data",chunk=>data+=chunk);
-        res.on("end",()=>{
-          try{resolve(JSON.parse(data).version||null);}
-          catch(_){resolve(null);}
-        });
+        res.on("end",()=>{try{resolve(JSON.parse(data).version||null);}catch(_){resolve(null);}});
       }
-    ).on("error",()=>resolve(null));
+    );
+    req.on("error",()=>resolve(null));
+    req.setTimeout(5000,()=>{req.destroy();resolve(null);});
   });
 
   if(!latest){
     console.log(`${c.yellow}offline${c.reset}`);
-    console.log(`\n  ${c.yellow}⚠${c.reset} Não foi possível verificar versão no npm.\n`);
+    warn("Não foi possível verificar versão no npm.");
+    if(force)info("Use upgrade --force quando online para aplicar atualização.");
+    console.log();
     return;
   }
   console.log(`${c.green}ok${c.reset}`);
 
-  if(current===latest){
+  const isUpToDate=VERSION===latest||
+    semverGte(VERSION,latest);
+
+  if(isUpToDate&&!force){
     console.log(`\n  ${c.green}✓${c.reset} Bifrost já está na versão mais recente (v${latest})\n`);
-  }else{
-    console.log(`\n  ${c.yellow}Nova versão disponível:${c.reset} v${current} → v${latest}`);
+    return;
+  }
+
+  if(!isUpToDate&&!force){
+    console.log(`\n  ${c.yellow}Nova versão disponível:${c.reset} v${VERSION} → v${latest}`);
     console.log(`  Para atualizar: ${c.cyan}npx harness-engineering@latest upgrade --force${c.reset}`);
     console.log(`  ${c.yellow}⚠${c.reset} O upgrade não sobrescreve customizações em ${c.cyan}directives/${c.reset} e ${c.cyan}.harness/${c.reset}\n`);
+    return;
+  }
+
+  // ── --force: aplicar atualização ─────────────────────────────
+  if(!fs.existsSync(path.join(cwd,".harness","VERSION"))){
+    console.log(`\n  ${c.red}✗${c.reset} Harness não encontrado neste diretório.`);
+    info(`Use ${c.cyan}npx harness-engineering${c.reset} para instalar.\n`);
+    return;
+  }
+
+  console.log(`\n  Atualizando harness para v${latest}...\n`);
+
+  // Atualiza .harness/VERSION
+  fs.writeFileSync(path.join(cwd,".harness","VERSION"),VERSION);
+  ok(".harness/VERSION atualizado");
+
+  // Atualiza campo version em .harness/config.json (sem sobrescrever o resto)
+  const configPath=path.join(cwd,".harness","config.json");
+  if(fs.existsSync(configPath)){
+    try{
+      const cfg=JSON.parse(fs.readFileSync(configPath,"utf8"));
+      cfg.version=VERSION;
+      fs.writeFileSync(configPath,JSON.stringify(cfg,null,2),"utf8");
+      ok(".harness/config.json versão atualizada");
+    }catch(_){warn("Não foi possível atualizar .harness/config.json");}
+  }
+
+  console.log(`\n  ${c.cyan}ℹ${c.reset} Arquivos preservados (suas customizações):`);
+  console.log(`    ${c.cyan}AGENTS.md · CLAUDE.md · GEMINI.md${c.reset}`);
+  console.log(`    ${c.cyan}directives/ · .harness/memory/ · docs/${c.reset}\n`);
+  console.log(`  ${c.green}✓${c.reset} Harness atualizado para v${VERSION}\n`);
+  info(`Para atualizar os arquivos de infra: ${c.cyan}npx harness-engineering adopt${c.reset}`);
+  console.log();
+}
+
+// ── Doctor ───────────────────────────────────────────────────
+async function cmdDoctor(){
+  console.log(`\n${c.bold}🌉 Bifrost Doctor${c.reset} — diagnóstico do ambiente\n`);
+
+  const checks=[];
+  const cwd=process.cwd();
+  const {execSync}=require("child_process");
+  const run=cmd=>{try{return execSync(cmd,{stdio:"pipe"}).toString().trim();}catch{return null;}};
+
+  // Check 1 — Node.js versão
+  const nodeVer=process.version;
+  const nodeMajor=parseInt(nodeVer.slice(1).split(".")[0]);
+  checks.push({label:"Node.js 16+",ok:nodeMajor>=16,detail:nodeVer,
+    fix:"Instale Node.js 16+ em https://nodejs.org"});
+
+  // Check 2 — Python disponível
+  const pythonVer=run("python --version")||run("python3 --version");
+  checks.push({label:"Python 3.x",ok:!!pythonVer,detail:pythonVer||"não encontrado",
+    fix:"Instale Python em https://python.org/downloads"});
+
+  // Check 3 — Git instalado
+  const gitVer=run("git --version");
+  checks.push({label:"Git",ok:!!gitVer,detail:gitVer||"não encontrado",
+    fix:"Instale Git em https://git-scm.com"});
+
+  // Check 4 — Harness instalado
+  const harnessPath=path.join(cwd,".harness","VERSION");
+  const harnessOk=fs.existsSync(harnessPath);
+  const harnessDetail=harnessOk?fs.readFileSync(harnessPath,"utf8").trim():"não encontrado";
+  checks.push({label:"Harness instalado",ok:harnessOk,detail:harnessDetail,
+    fix:"Execute npx harness-engineering para instalar"});
+
+  // Check 5 — Arquivos obrigatórios
+  const required=["AGENTS.md",".harness/index.md",".harness/config.json",".harness/pev/pev.md"];
+  const missing=required.filter(f=>!fs.existsSync(path.join(cwd,f)));
+  checks.push({
+    label:"Arquivos obrigatórios",
+    ok:missing.length===0,
+    detail:missing.length===0?`${required.length}/${required.length} presentes`:`faltando: ${missing.join(", ")}`,
+    fix:"Execute npx harness-engineering check para detalhes"
+  });
+
+  // Check 6 — Versão do CLI vs npm
+  process.stdout.write(`  Verificando versão do CLI... `);
+  let latestVer=VERSION;
+  try{
+    latestVer=await new Promise(resolve=>{
+      const req=https.get(
+        "https://registry.npmjs.org/harness-engineering/latest",
+        {headers:{"Accept":"application/json"}},
+        res=>{
+          let data="";
+          res.on("data",chunk=>data+=chunk);
+          res.on("end",()=>{try{resolve(JSON.parse(data).version||VERSION);}catch{resolve(VERSION);}});
+        }
+      );
+      req.on("error",()=>resolve(VERSION));
+      req.setTimeout(5000,()=>{req.destroy();resolve(VERSION);});
+    });
+  }catch{latestVer=VERSION;}
+  process.stdout.write("\r                                    \r"); // limpa linha
+  const isLatest=VERSION===latestVer||
+    semverGte(VERSION,latestVer);
+  checks.push({
+    label:`CLI v${VERSION}`,
+    ok:isLatest,
+    detail:isLatest?"versão mais recente":`v${latestVer} disponível`,
+    fix:`Execute npx harness-engineering@latest upgrade --force`
+  });
+
+  // Imprimir resultados
+  const line="─".repeat(50);
+  console.log(line);
+  for(const ch of checks){
+    const icon=ch.ok?`${c.green}✓${c.reset}`:`${c.red}✗${c.reset}`;
+    const label=ch.label.padEnd(28);
+    console.log(`  ${icon} ${label} ${ch.detail}`);
+  }
+  console.log(line);
+
+  const failures=checks.filter(ch=>!ch.ok);
+  if(failures.length===0){
+    console.log(`\n  ${c.green}✓${c.reset} Ambiente íntegro — tudo funcionando.\n`);
+  }else{
+    console.log(`\n  ${c.yellow}${failures.length} problema(s) encontrado(s):${c.reset}\n`);
+    for(const f of failures)console.log(`  ${c.cyan}→${c.reset} ${f.label}: ${f.fix}`);
+    console.log();
   }
 }
 
 // ── Entry point ───────────────────────────────────────────────
-const[,,cmd,...rest]=process.argv;
-switch(cmd){
-  case"adopt":   cmdAdopt();break;
-  case"skill":   cmdSkill(rest);break;
-  case"check":   cmdCheck();break;
-  case"stats":   require("./stats.js").printStats();break;
-  case"upgrade": cmdUpgrade();break;
-  case"--version":case"-v": console.log(`bifrost-harness v${VERSION}`);break;
-  case"--help":case"-h":
-    console.log(`\n${c.bold}🌉 Bifrost Harness Engineering v${VERSION}${c.reset}\n\nnpx harness-engineering              Instala o Bifrost (projeto novo)\nnpx harness-engineering adopt        Detecta stack e adota em projeto existente\nnpx harness-engineering skill <nome> Instala uma skill\nnpx harness-engineering skill --bundle <bundle>\nnpx harness-engineering skill --list  Lista disponíveis\nnpx harness-engineering check         Verifica integridade\nnpx harness-engineering stats         Exibe métricas do harness\nnpx harness-engineering upgrade       Verifica e aplica atualizações\n\n${c.bold}Bundles:${c.reset} essentials · saas · api · security\n`);break;
-  default: cmdInstall();
-}
+(async()=>{
+  const[,,cmd,...rest]=process.argv;
+  switch(cmd){
+    case"adopt":   await cmdAdopt();break;
+    case"skill":   await cmdSkill(rest);break;
+    case"check":   cmdCheck();break;
+    case"stats":   require("./stats.js").printStats();break;
+    case"upgrade": await cmdUpgrade(rest);break;
+    case"doctor":  await cmdDoctor();break;
+    case"--version":case"-v": console.log(`bifrost-harness v${VERSION}`);break;
+    case"--help":case"-h":
+      console.log(`\n${c.bold}🌉 Bifrost Harness Engineering v${VERSION}${c.reset}\n\nnpx harness-engineering               Instala o Bifrost (projeto novo)\nnpx harness-engineering adopt         Detecta stack e adota em projeto existente\nnpx harness-engineering skill <nome>  Instala uma skill\nnpx harness-engineering skill --bundle <bundle>\nnpx harness-engineering skill --list   Lista disponíveis\nnpx harness-engineering check          Verifica integridade\nnpx harness-engineering stats          Exibe métricas do harness\nnpx harness-engineering doctor         Diagnóstico do ambiente (Node, Python, Git, harness)\nnpx harness-engineering upgrade        Verifica atualizações disponíveis\nnpx harness-engineering upgrade --force Aplica atualização, preserva customizações\n\n${c.bold}Bundles:${c.reset} essentials · saas · api · security\n`);break;
+    default: await cmdInstall();
+  }
+})();
