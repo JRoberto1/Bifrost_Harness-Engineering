@@ -2,7 +2,7 @@
 
 > Última atualização: 2026-05-28
 
-## Estado atual — v1.5.0 (Harness) · v2.6.0 (CLI)
+## Estado atual — v1.6.0 (Harness) · v2.8.0 (CLI)
 
 O harness está estável e testado. O CLI foi validado end-to-end.
 Contribuições são bem-vindas nas áreas abaixo.
@@ -38,25 +38,25 @@ incluindo testing.md e deployment.md com protocolos acionáveis.
 
 ---
 
-## v1.6.0 — Harness (em progresso)
+## ✅ v1.6.0 — Harness (concluído em 2026-05-28)
 
-**Foco: Directives de qualidade de código**
+**Foco: Directives de qualidade de código e domínios especializados**
 
 - [x] Directive `code-review.md` — protocolo de revisão em 5 camadas ✓ Sprint 21
 - [x] Directive `refactoring.md` — protocolo de refatoração segura ✓ Sprint 21
-- [ ] Domínio `mobile.md` — React Native / Flutter
-- [ ] Domínio `data-science.md` — Python, Jupyter, pandas
+- [x] Directive `mobile.md` — React Native e Flutter ✓ Sprint 22
+- [x] Directive `data-science.md` — análise reproduzível e ML ✓ Sprint 22
 
 ---
 
-## v1.7.0 — Harness (futuro)
+## v1.7.0 — Harness (planejado)
 
-**Foco: Multi-agente e workflows paralelos**
+**Foco: Directives de arquitetura e onboarding**
 
-- [ ] Directive `multi-agent.md` — coordenação entre agentes paralelos
-- [ ] Protocolo de handoff entre sessões de runtimes diferentes
-- [ ] Schema de sessão v2 com suporte a sub-tarefas e dependências
-- [ ] Integração com GSD (get-shit-done) via harness compartilhado
+- [ ] Directive `architecture.md` — decisões arquiteturais e ADRs
+- [ ] Directive `onboarding.md` — integrar novo desenvolvedor ao projeto
+- [ ] Skill `performance-audit` — auditoria de performance
+- [ ] Skill `accessibility` — checklist de acessibilidade web
 
 ---
 

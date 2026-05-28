@@ -1,5 +1,5 @@
 [![npm CLI](https://img.shields.io/npm/v/harness-engineering?style=flat-square&label=CLI&color=000)](https://www.npmjs.com/package/harness-engineering)
-[![Harness](https://img.shields.io/badge/harness-v1.5.0-blue?style=flat-square)](https://github.com/JRoberto1/Bifrost_Harness-Engineering/releases/tag/v1.5.0)
+[![Harness](https://img.shields.io/badge/harness-v1.6.0-blue?style=flat-square)](https://github.com/JRoberto1/Bifrost_Harness-Engineering/releases/tag/v1.6.0)
 [![CI](https://github.com/JRoberto1/Bifrost_Harness-Engineering/actions/workflows/harness-check.yml/badge.svg)](https://github.com/JRoberto1/Bifrost_Harness-Engineering/actions/workflows/harness-check.yml)
 [![MIT](https://img.shields.io/badge/license-MIT-blue?style=flat-square)](https://github.com/JRoberto1/Bifrost_Harness-Engineering/blob/main/LICENSE)
 [![runtimes](https://img.shields.io/badge/runtimes-Claude%20Code%20%7C%20Antigravity%20%7C%20OpenCode-green?style=flat-square)](#compatibilidade)
@@ -104,7 +104,7 @@ Para atualizar: npx harness-engineering@latest upgrade --force
 | | Harness | CLI |
 |---|---|---|
 | **O que é** | Arquivos copiados para seu projeto | Instalador e utilitários |
-| **Versão atual** | v1.5.0 | v2.6.0 |
+| **Versão atual** | v1.6.0 | v2.8.0 |
 | **Onde vive** | Dentro do seu projeto | npm global |
 | **Como atualizar** | `git pull` + `sync-harness.py` | `npx harness-engineering upgrade` |
 
@@ -275,13 +275,19 @@ Quando o agente cometer um erro:
 
 ## Changelog
 
-### Harness v1.5.0 — atual
+### Harness v1.6.0 — atual
 
-- ✨ `directives/testing.md` — protocolo TDD, cobertura mínima por tipo, checklist por framework
-- ✨ `directives/deployment.md` — checklist pré-deploy, protocolos por plataforma (Vercel, Railway, Docker, GitHub Actions), estratégia de rollback
-- ✨ 10 directives total instaladas pelo CLI (era 8)
+- ✨ `directives/mobile.md` — React Native e Flutter: performance, navegação, permissões, checklist universal
+- ✨ `directives/data-science.md` — análise reproduzível, protocolo EDA → limpeza → modelagem → avaliação, boas práticas de notebooks
+- ✨ 14 directives total instaladas pelo CLI (era 12)
 
-### CLI v2.6.0 — atual
+### CLI v2.8.0 — atual
+
+- ✨ `directives/mobile.md` e `directives/data-science.md` bundladas no pacote npm
+- ✨ 14 directives instaladas por `npx harness-engineering` (era 12)
+- 🔧 `INDEX_MD` atualizado com as 2 novas directives
+
+### Harness v1.5.0
 
 - ✨ `directives/testing.md` e `directives/deployment.md` bundladas no pacote npm
 - ✨ 10 directives instaladas por `npx harness-engineering` (era 8)
