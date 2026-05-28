@@ -50,8 +50,8 @@ AGENTS_ROUTING = """\
 AGENTS_SESSION = """\
 ## Memória de Sessão
 
-**Ao iniciar:** leia `.harness/memory/last-session.md` se existir.
-**Ao encerrar:** salve contexto em `.harness/memory/last-session.md`.
+**Ao iniciar:** leia `.harness/memory/last-session.json` se existir.
+**Ao encerrar:** salve contexto em `.harness/memory/last-session.json`.
 **Formato JSON:** salve em `.harness/memory/last-session.json` (schema: `docs/session-schema.md`)
 
 **Claude Code:** `/wrap-session` e `/brief-session`
@@ -87,7 +87,7 @@ CLAUDE_ROUTING = """\
 CLAUDE_SESSION = """\
 ## Memória de Sessão
 
-**Ao iniciar:** leia `.harness/memory/last-session.md` se existir.
+**Ao iniciar:** leia `.harness/memory/last-session.json` se existir.
 **Ao encerrar:** execute `/wrap-session`.
 **Formato JSON:** salve em `.harness/memory/last-session.json` (schema: `docs/session-schema.md`)
 **Compressão:** `/context-check --compress` após 8 turnos.
@@ -126,14 +126,14 @@ Este runtime não tem comandos nativos de sessão. Use estes prompts manualmente
 
 **Ao iniciar:**
 ```
-Execute: Leia .harness/memory/last-session.md e me dê um briefing
+Execute: Leia .harness/memory/last-session.json e me dê um briefing
 do estado anterior antes de qualquer ação.
 ```
 
 **Ao encerrar:**
 ```
 Execute: Leia directives/session-memory.md e salve o contexto atual
-em .harness/memory/last-session.md seguindo o template da directive.
+em .harness/memory/last-session.json seguindo o template da directive.
 ```
 
 **Formato JSON:** salve em `.harness/memory/last-session.json` (schema: `docs/session-schema.md`)
