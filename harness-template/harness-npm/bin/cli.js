@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // ============================================================
 // Bifrost — Harness Engineering CLI
-// v2.0.4 — fix readline stdin blocking no input piped
+// v2.0.5 — last-session.json, sync-harness.sh, directives sync
 // ============================================================
 
 const fs   = require("fs");
@@ -9,7 +9,7 @@ const path = require("path");
 const https = require("https");
 const readline = require("readline");
 
-const VERSION = "2.0.4";
+const VERSION = "2.0.5";
 const TARGET  = process.cwd();
 
 const c = {
@@ -132,8 +132,8 @@ VERIFY  → falha = volta ao Plan com contexto de erro
 
 ## Memória
 
-Ao iniciar: leia \`.harness/memory/last-session.md\` se existir.
-Ao encerrar: salve em \`.harness/memory/last-session.md\`.
+Ao iniciar: leia \`.harness/memory/last-session.json\` se existir.
+Ao encerrar: salve em \`.harness/memory/last-session.json\`.
 Claude Code: \`/wrap-session\` e \`/brief-session\`.
 
 ## Domínios Ativos
@@ -259,8 +259,8 @@ async function cmdInstall(){
     "plan.md":`# /plan — Decomposição em Tarefas\n\nDecomponha em tarefas com critérios verificáveis.\n\n## Instrução\nLeia a spec em docs/specs/ se existir. Crie tabela com: tarefa, arquivo(s), critério verificável, dependência.\nAguarde aprovação antes de executar.\n\n## Anti-Rationalization\n❌ "As tarefas são óbvias" → Se é óbvio, leva 2min escrever. Escreva.\n❌ "Posso fazer tudo de uma vez" → Tarefas grandes = contexto pesado = erros\n`,
     "review.md":`# /review — Code Review Multi-Dimensional\n\nQuality gate antes de merge.\n\n## 5 Dimensões\n1. Correção — faz o que a spec diz?\n2. Legibilidade — nomes claros, responsabilidade única?\n3. Arquitetura — segue as camadas?\n4. Segurança — inputs validados, sem credenciais hardcoded?\n5. Performance — sem N+1, sem loops desnecessários?\n\n## Anti-Rationalization\n❌ "Eu escrevi, sei que está certo" → Revisão existe por isso\n❌ "Testes passam, está bom" → Testes passam código errado o tempo todo\n`,
     "ship.md":`# /ship — Checklist de Produção\n\nNão faça deploy sem este checklist.\n\n## Checklist\n- [ ] /review executado e aprovado\n- [ ] Todos os testes passando\n- [ ] Sem console.log em produção\n- [ ] .env não commitado\n- [ ] docs/architecture.md atualizado se houve decisão nova\n- [ ] Build passa localmente\n- [ ] Plano de rollback definido\n\n## Anti-Rationalization\n❌ "É urgente, vou pular alguns" → Urgência não cancela segurança\n❌ "É só um hotfix" → Hotfixes sem checklist geram hotfixes de hotfix\n`,
-    "wrap-session.md":`# /wrap-session — Encerrar Sessão\n\nSalva o contexto antes de parar. Usa ~500 tokens na próxima sessão em vez de 20k.\n\n## Instrução\nResuma: decisões tomadas, tarefas concluídas, tarefas pendentes (com prioridade), próximo passo exato, aprendizados Hashimoto.\nSalve em .harness/memory/last-session.md e em .harness/memory/YYYY-MM-DD-[tema].md.\n`,
-    "brief-session.md":`# /brief-session — Retomar Sessão\n\nLê o contexto salvo. Economiza 97% dos tokens de reintrodução.\n\n## Instrução\nLeia .harness/memory/last-session.md. Apresente: o que foi concluído, o que está pendente, próximo passo. Aguarde instrução antes de executar.\n`,
+    "wrap-session.md":`# /wrap-session — Encerrar Sessão\n\nSalva o contexto antes de parar. Usa ~500 tokens na próxima sessão em vez de 20k.\n\n## Instrução\nResuma: decisões tomadas, tarefas concluídas, tarefas pendentes (com prioridade), próximo passo exato, aprendizados Hashimoto.\nSalve em .harness/memory/last-session.json e em .harness/memory/YYYY-MM-DD-[tema].md.\n`,
+    "brief-session.md":`# /brief-session — Retomar Sessão\n\nLê o contexto salvo. Economiza 97% dos tokens de reintrodução.\n\n## Instrução\nLeia .harness/memory/last-session.json. Apresente: o que foi concluído, o que está pendente, próximo passo. Aguarde instrução antes de executar.\n`,
     "context-check.md":`# /context-check — Verificar Contexto\n\n## Instrução\nReporte: directives carregadas, turnos desta sessão, tokens estimados.\nSe --compress: execute python execution/compress-history.py --auto\n`,
     "model-select.md":`# /model-select — Selecionar Modelo\n\n## Tabela\n| Tarefa | Modelo |\n|--------|--------|\n| Docs, testes, formatação | Haiku / Mini |\n| Código, implementação | Sonnet / padrão |\n| Arquitetura, debugging | Opus / Pro |\n\n## Instrução\nSe o usuário passou uma descrição, classifique e recomende em 2 linhas.\n`,
   };

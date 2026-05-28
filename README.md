@@ -104,7 +104,7 @@ Para atualizar: npx harness-engineering@latest upgrade --force
 | | Harness | CLI |
 |---|---|---|
 | **O que é** | Arquivos copiados para seu projeto | Instalador e utilitários |
-| **Versão atual** | v1.4.0 | v2.0.4 |
+| **Versão atual** | v1.4.0 | v2.0.5 |
 | **Onde vive** | Dentro do seu projeto | npm global |
 | **Como atualizar** | `git pull` + `sync-harness.py` | `npx harness-engineering upgrade` |
 
@@ -187,7 +187,11 @@ Leia AGENTS.md (ou CLAUDE.md / GEMINI.md) completamente antes de qualquer ação
 bash scripts/init-project.sh      # inicializa harness em projeto novo
 bash scripts/adopt-project.sh     # adota projeto existente
 bash scripts/health-check.sh      # verifica saúde do harness
+bash scripts/sync-harness.sh      # alternativa shell ao sync-harness.py
 ```
+
+> Se Python estiver disponível, prefira:
+> `python scripts/sync-harness.py` (mais completo — aplica overrides por runtime)
 
 ---
 
@@ -281,6 +285,13 @@ Quando o agente cometer um erro:
 - ✨ `.harness/memory/last-session.json` — schema estruturado de sessão
 - ✨ CI consolidado em `harness-check.yml` com 9 checks automáticos
 - ✨ `.gitattributes` — line endings determinísticos Windows/Linux
+
+### CLI v2.0.5
+
+- 🐛 Template do `AGENTS.md` e comandos `/wrap-session` `/brief-session` referenciavam `last-session.md` — corrigido para `last-session.json`
+- 🔧 `harness-template/scripts/sync-mirrors.sh` renomeado para `sync-harness.sh` com header explicativo
+- 🔧 `harness-template/directives/health-check.md` adicionado (estava faltando no template)
+- ✨ `ROADMAP.md` — v1.5.0, v2.1.0, v1.6.0 com critérios de conclusão
 
 ### CLI v2.0.4
 

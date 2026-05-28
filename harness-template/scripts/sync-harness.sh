@@ -1,7 +1,8 @@
 #!/bin/bash
-# Bifrost — sync-mirrors.sh
+# sync-harness.sh — equivalente shell de scripts/sync-harness.py
+# Para projetos sem Python instalado
+# Uso: bash scripts/sync-harness.sh [--watch]
 # Sincroniza AGENTS.md → CLAUDE.md e GEMINI.md automaticamente
-# Uso: bash scripts/sync-mirrors.sh [--watch]
 
 GRN='\033[0;32m'; YEL='\033[1;33m'; BOLD='\033[1m'; NC='\033[0m'
 
