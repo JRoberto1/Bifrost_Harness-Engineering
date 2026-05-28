@@ -1,44 +1,40 @@
 # Bifrost — Roadmap
 
-> Última atualização: 2025-05-27
+> Última atualização: 2026-05-28
 
-## Estado atual — v1.4.0 (Harness) · v2.0.5 (CLI)
+## Estado atual — v1.5.0 (Harness) · v2.6.0 (CLI)
 
 O harness está estável e testado. O CLI foi validado end-to-end.
 Contribuições são bem-vindas nas áreas abaixo.
 
 ---
 
-## v1.5.0 — Harness (próxima versão)
+## ✅ v1.5.0 — Harness (concluído)
 
-**Foco: Skills reais e domínios expandidos**
+**Foco: Directives de qualidade + sistema de skills**
 
-- [ ] Sistema de skills funcional — instalar via `npx harness-engineering skill`
-- [ ] 3 skills prontas: `security-auditor`, `api-designer`, `code-reviewer`
-- [ ] Domínio `mobile.md` — React Native / Flutter
-- [ ] Domínio `data-science.md` — Python, Jupyter, pandas
-- [ ] Directive `testing.md` — protocolos de TDD e cobertura mínima
-- [ ] Directive `deployment.md` — checklist de deploy por plataforma
+- [x] Sistema de skills funcional — instalar via `npx harness-engineering skill`
+- [x] 8+ skills reais incluídas no pacote npm
+- [x] Directive `testing.md` — protocolos de TDD e cobertura mínima
+- [x] Directive `deployment.md` — checklist de deploy por plataforma
+- [x] Taxonomia Hashimoto — 5 tipos (A–E) com protocolo de correção
+- [x] Todos os arquivos atualizados: DOE removido, PEV consolidado, last-session.json
 
-**Critério de conclusão:** `npx harness-engineering skill --bundle essentials`
-instala skills reais que melhoram o comportamento do agente de forma mensurável.
+**Critério de conclusão:** ✓ 10 directives instaladas pelo CLI,
+incluindo testing.md e deployment.md com protocolos acionáveis.
 
 ---
 
-## v2.1.0 — CLI (próxima versão)
+## ✅ v2.1.0–v2.6.0 — CLI (concluído)
 
 **Foco: Fluxo de adoção em projetos existentes**
 
-- [ ] `npx harness-engineering adopt` — wizard para projetos existentes
-  detecta stack automaticamente e sugere directives relevantes
-- [ ] `npx harness-engineering diff` — compara harness local com versão mais recente
-  mostra o que mudou sem sobrescrever customizações
-- [ ] `npx harness-engineering doctor` — diagnóstico completo do ambiente
-  verifica Node, Python, Git, e integridade de todos os arquivos
-- [ ] Suporte a `--silent` para uso em CI/CD pipelines
-
-**Critério de conclusão:** usuário com projeto existente consegue adotar
-o Bifrost em menos de 5 minutos sem perder customizações.
+- [x] `npx harness-engineering adopt` — wizard para projetos existentes (v2.2.0)
+- [x] `npx harness-engineering doctor` — diagnóstico completo do ambiente (v2.3.0)
+- [x] `npx harness-engineering upgrade --force` — atualização preservando customizações (v2.3.0)
+- [x] 8+ directives reais bundladas no pacote npm (v2.4.0)
+- [x] DOE removido, PEV consolidado em todos os arquivos (v2.5.0)
+- [x] `testing.md` e `deployment.md` — 10 directives total (v2.6.0)
 
 ---
 

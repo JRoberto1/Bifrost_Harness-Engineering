@@ -1,5 +1,5 @@
 [![npm CLI](https://img.shields.io/npm/v/harness-engineering?style=flat-square&label=CLI&color=000)](https://www.npmjs.com/package/harness-engineering)
-[![Harness](https://img.shields.io/badge/harness-v1.4.0-blue?style=flat-square)](https://github.com/JRoberto1/Bifrost_Harness-Engineering/releases/tag/v1.4.0)
+[![Harness](https://img.shields.io/badge/harness-v1.5.0-blue?style=flat-square)](https://github.com/JRoberto1/Bifrost_Harness-Engineering/releases/tag/v1.5.0)
 [![CI](https://github.com/JRoberto1/Bifrost_Harness-Engineering/actions/workflows/harness-check.yml/badge.svg)](https://github.com/JRoberto1/Bifrost_Harness-Engineering/actions/workflows/harness-check.yml)
 [![MIT](https://img.shields.io/badge/license-MIT-blue?style=flat-square)](https://github.com/JRoberto1/Bifrost_Harness-Engineering/blob/main/LICENSE)
 [![runtimes](https://img.shields.io/badge/runtimes-Claude%20Code%20%7C%20Antigravity%20%7C%20OpenCode-green?style=flat-square)](#compatibilidade)
@@ -104,7 +104,7 @@ Para atualizar: npx harness-engineering@latest upgrade --force
 | | Harness | CLI |
 |---|---|---|
 | **O que é** | Arquivos copiados para seu projeto | Instalador e utilitários |
-| **Versão atual** | v1.4.0 | v2.5.0 |
+| **Versão atual** | v1.5.0 | v2.6.0 |
 | **Onde vive** | Dentro do seu projeto | npm global |
 | **Como atualizar** | `git pull` + `sync-harness.py` | `npx harness-engineering upgrade` |
 
@@ -275,7 +275,20 @@ Quando o agente cometer um erro:
 
 ## Changelog
 
-### Harness v1.4.0 — atual
+### Harness v1.5.0 — atual
+
+- ✨ `directives/testing.md` — protocolo TDD, cobertura mínima por tipo, checklist por framework
+- ✨ `directives/deployment.md` — checklist pré-deploy, protocolos por plataforma (Vercel, Railway, Docker, GitHub Actions), estratégia de rollback
+- ✨ 10 directives total instaladas pelo CLI (era 8)
+
+### CLI v2.6.0 — atual
+
+- ✨ `directives/testing.md` e `directives/deployment.md` bundladas no pacote npm
+- ✨ 10 directives instaladas por `npx harness-engineering` (era 8)
+- ✨ `INDEX_MD` atualizado com as 2 novas directives
+- 🔧 `ROADMAP.md` — v1.5.0 fechado, v2.1.0–v2.6.0 consolidados
+
+### Harness v1.4.0
 
 - ✨ `GEMINI.md` reescrito com comandos corretos para Antigravity
 - ✨ `docs/architecture.md` — diagrama das 3 camadas e fluxo de decisão
@@ -286,7 +299,7 @@ Quando o agente cometer um erro:
 - ✨ CI consolidado em `harness-check.yml` com 9 checks automáticos
 - ✨ `.gitattributes` — line endings determinísticos Windows/Linux
 
-### CLI v2.5.0 — atual
+### CLI v2.5.0
 
 - 🐛 DOE → PEV em todos os harness files (`AGENTS.md`, `CLAUDE.md`, `GEMINI.md`, `harness-template/`)
 - 🐛 `harness-template/.harness/doe/` removido (3 arquivos órfãos)

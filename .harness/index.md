@@ -1,5 +1,5 @@
 <!-- AUTO-GERADO por scripts/build-harness.py — NÃO EDITE MANUALMENTE -->
-<!-- v1.4.0 -->
+<!-- v1.5.0 -->
 
 # Bifrost — Índice de Directives
 
@@ -15,6 +15,8 @@
 | [session-memory](../directives/session-memory.md) | universal | `sessão`, `memória`, `retomar` +4 | 900 | claude-code, antigravity, opencode, cursor |
 | [spec-driven](../directives/spec-driven.md) | universal | `spec`, `especificação`, `antes de código` +3 | 500 | claude-code, antigravity, opencode, cursor |
 | [subagent-dispatch](../directives/subagent-dispatch.md) | universal | `sub-agente`, `tarefa pesada`, `contexto independente` +2 | 600 | claude-code, antigravity, opencode, cursor |
+| [testing](../directives/testing.md) | universal | `teste`, `tdd`, `cobertura` +7 | 650 | claude-code, antigravity, opencode, cursor |
+| [deployment](../directives/deployment.md) | universal | `deploy`, `produção`, `release` +8 | 700 | claude-code, antigravity, opencode, cursor |
 
 ---
 *Atualizado automaticamente. Para regenerar: `python scripts/build-harness.py`*
