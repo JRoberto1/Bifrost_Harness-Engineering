@@ -38,7 +38,18 @@ incluindo testing.md e deployment.md com protocolos acionáveis.
 
 ---
 
-## v1.6.0 — Harness (futuro)
+## v1.6.0 — Harness (em progresso)
+
+**Foco: Directives de qualidade de código**
+
+- [x] Directive `code-review.md` — protocolo de revisão em 5 camadas ✓ Sprint 21
+- [x] Directive `refactoring.md` — protocolo de refatoração segura ✓ Sprint 21
+- [ ] Domínio `mobile.md` — React Native / Flutter
+- [ ] Domínio `data-science.md` — Python, Jupyter, pandas
+
+---
+
+## v1.7.0 — Harness (futuro)
 
 **Foco: Multi-agente e workflows paralelos**
 
