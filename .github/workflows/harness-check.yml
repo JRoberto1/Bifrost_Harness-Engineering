@@ -199,8 +199,13 @@ jobs:
             echo "✓ Sem 'any' detectado"
           fi
 
+      - name: Documenta hook global
+        run: |
+          echo "### Hook Global" >> $GITHUB_STEP_SUMMARY
+          echo "Para auto-save: npx harness-engineering setup-hooks" >> $GITHUB_STEP_SUMMARY
+
       - name: Summary
         run: |
           echo ""
           echo "✅ Bifrost íntegro — todos os checks passaram"
-          echo "   núcleo · sincronização · suporte · opencode · index · segredos · config · TypeScript"
+          echo "   núcleo · sincronização · suporte · opencode · index · segredos · config · TypeScript · hooks"

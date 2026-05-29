@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // ============================================================
 // Bifrost — Harness Engineering CLI
-// v2.9.0 — directives architecture.md + onboarding.md, skills performance-audit + accessibility
+// v3.0.0 — setup-hooks global, auto-save por commit
 // ============================================================
 
 const fs   = require("fs");
@@ -9,7 +9,7 @@ const path = require("path");
 const https = require("https");
 const readline = require("readline");
 
-const VERSION = "2.9.0";
+const VERSION = "3.0.0";
 const TARGET  = process.cwd();
 
 const c = {
@@ -238,6 +238,54 @@ const HASHIMOTO_LOG = `# Hashimoto Log\n| Data | Tipo | Descrição | Arquivo Co
 const SESSION_SCHEMA = `# Session Schema v1\nSchema de memória entre sessões — veja docs/session-schema.md\nno repositório Bifrost para documentação completa.\nhttps://github.com/JRoberto1/Bifrost_Harness-Engineering/blob/main/docs/session-schema.md\n`;
 
 const GITATTRIBUTES = `* text=auto eol=lf\n*.md text eol=lf\n*.py text eol=lf\n*.json text eol=lf\n*.yml text eol=lf\n`;
+
+const POST_COMMIT_HOOK = `#!/bin/sh
+# Bifrost Global Hook v1.0.0
+# Atualiza last-session.json automaticamente após cada commit
+# Instalado por: npx harness-engineering setup-hooks
+
+HARNESS_DIR=".harness/memory"
+SESSION_FILE="$HARNESS_DIR/last-session.json"
+
+# Só executa se o projeto tiver o Bifrost instalado
+if [ ! -f ".harness/VERSION" ]; then
+  exit 0
+fi
+
+# Garante que a pasta existe
+mkdir -p "$HARNESS_DIR"
+
+TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+FILES=$(git diff-tree --no-commit-id -r --name-only HEAD 2>/dev/null | tr '\\n' ',' | sed 's/,$//')
+COMMIT_MSG=$(git log -1 --pretty=%B 2>/dev/null | head -1 | sed 's/"/\\\\"/g')
+HARNESS_VERSION=$(cat .harness/VERSION 2>/dev/null | grep -o 'v[0-9.]*' || echo "unknown")
+
+# Formata files como array JSON
+if [ -z "$FILES" ]; then
+  FILES_JSON="[]"
+else
+  FILES_JSON="[\\"$(echo "$FILES" | sed 's/,/\\",\\"/g')\\"]"
+fi
+
+cat > "$SESSION_FILE" << ENDJSON
+{
+  "\\$schema": "https://bifrost.harness/session-schema/v1",
+  "session_id": "\${TIMESTAMP}",
+  "timestamp": "\${TIMESTAMP}",
+  "runtime": "claude-code",
+  "harness_version": "\${HARNESS_VERSION}",
+  "task_summary": "\${COMMIT_MSG}",
+  "context_level_at_close": "L2",
+  "open_items": [],
+  "decisions_made": [],
+  "files_modified": \${FILES_JSON},
+  "next_action": "Continuar desenvolvimento — ver último commit para contexto",
+  "hashimoto_events": []
+}
+ENDJSON
+
+echo "✓ Bifrost: last-session.json atualizado"
+`;
 
 // ── Detecção de stack ─────────────────────────────────────────
 function detectStack(){
@@ -481,6 +529,13 @@ async function cmdInstall(){
   info(`Ver métricas: ${c.cyan}npx harness-engineering stats${c.reset}`);
   info(`Automação avançada: ${c.cyan}git clone https://github.com/JRoberto1/Bifrost_Harness-Engineering${c.reset}`);
   console.log();
+
+  // Configurar hook global automaticamente
+  console.log('\n  Configurando hook git global...');
+  await cmdSetupHooks().catch(() => {
+    console.log('  ⚠ Hook não configurado — rode: npx harness-engineering setup-hooks');
+  });
+
   _closeRl();
 }
 
@@ -582,6 +637,13 @@ async function cmdAdopt(){
   info(`Ver métricas: ${c.cyan}npx harness-engineering stats${c.reset}`);
   info(`Automação avançada: ${c.cyan}git clone https://github.com/JRoberto1/Bifrost_Harness-Engineering${c.reset}`);
   console.log();
+
+  // Configurar hook global automaticamente
+  console.log('\n  Configurando hook git global...');
+  await cmdSetupHooks().catch(() => {
+    console.log('  ⚠ Hook não configurado — rode: npx harness-engineering setup-hooks');
+  });
+
   _closeRl();
 }
 
@@ -865,6 +927,75 @@ async function cmdDoctor(){
   }
 }
 
+// ── Setup Hooks ──────────────────────────────────────────────
+async function cmdSetupHooks() {
+  const os = require('os');
+  const { execSync } = require('child_process');
+
+  console.log('\n🌉 Bifrost Setup Hooks — configurando hook global\n');
+
+  // Determinar pasta de hooks global
+  const homeDir = os.homedir();
+  const hooksDir = path.join(homeDir, '.config', 'git', 'hooks');
+  const hookFile = path.join(hooksDir, 'post-commit');
+
+  // Criar pasta se não existir
+  if (!fs.existsSync(hooksDir)) {
+    fs.mkdirSync(hooksDir, { recursive: true });
+    console.log(`  ✓ Criada pasta: ${hooksDir}`);
+  }
+
+  // Escrever o hook
+  fs.writeFileSync(hookFile, POST_COMMIT_HOOK);
+  console.log(`  ✓ Hook criado: ${hookFile}`);
+
+  // Tornar executável (Unix/Mac/Git Bash)
+  try {
+    fs.chmodSync(hookFile, '755');
+  } catch (e) {
+    // Windows sem Git Bash — tudo bem, Git usa o arquivo mesmo assim
+  }
+
+  // Configurar git global hooksPath
+  // Usar forward slashes para compatibilidade Windows/Unix
+  const hooksPathForGit = hooksDir.replace(/\\/g, '/');
+
+  try {
+    execSync(`git config --global core.hooksPath "${hooksPathForGit}"`, {
+      stdio: 'pipe'
+    });
+    console.log(`  ✓ git config --global core.hooksPath configurado`);
+  } catch (e) {
+    console.log(`  ✗ Erro ao configurar git: ${e.message}`);
+    console.log(`    Execute manualmente:`);
+    console.log(`    git config --global core.hooksPath "${hooksPathForGit}"`);
+  }
+
+  // Verificar configuração
+  try {
+    const configured = execSync('git config --global core.hooksPath', {
+      stdio: 'pipe'
+    }).toString().trim();
+    console.log(`\n  ✓ Verificado: core.hooksPath = ${configured}`);
+  } catch (e) {
+    console.log(`  ⚠ Não foi possível verificar a configuração`);
+  }
+
+  console.log(`
+  ✓ Hook global instalado com sucesso!
+
+  O que acontece agora:
+  → A cada git commit em projetos com Bifrost instalado,
+    .harness/memory/last-session.json é atualizado automaticamente
+  → Funciona em qualquer projeto onde npx harness-engineering
+    foi executado
+  → Projetos sem .harness/VERSION são ignorados silenciosamente
+
+  Para desativar:
+  git config --global --unset core.hooksPath
+`);
+}
+
 // ── Entry point ───────────────────────────────────────────────
 (async()=>{
   const[,,cmd,...rest]=process.argv;
@@ -874,10 +1005,11 @@ async function cmdDoctor(){
     case"check":   cmdCheck();break;
     case"stats":   require("./stats.js").printStats();break;
     case"upgrade": await cmdUpgrade(rest);break;
-    case"doctor":  await cmdDoctor();break;
+    case"doctor":       await cmdDoctor();break;
+    case"setup-hooks":  await cmdSetupHooks();break;
     case"--version":case"-v": console.log(`bifrost-harness v${VERSION}`);break;
     case"--help":case"-h":
-      console.log(`\n${c.bold}🌉 Bifrost Harness Engineering v${VERSION}${c.reset}\n\nnpx harness-engineering               Instala o Bifrost (projeto novo)\nnpx harness-engineering adopt         Detecta stack e adota em projeto existente\nnpx harness-engineering skill <nome>  Instala uma skill\nnpx harness-engineering skill --bundle <bundle>\nnpx harness-engineering skill --list   Lista disponíveis\nnpx harness-engineering check          Verifica integridade\nnpx harness-engineering stats          Exibe métricas do harness\nnpx harness-engineering doctor         Diagnóstico do ambiente (Node, Python, Git, harness)\nnpx harness-engineering upgrade        Verifica atualizações disponíveis\nnpx harness-engineering upgrade --force Aplica atualização, preserva customizações\n\n${c.bold}Bundles:${c.reset} essentials · saas · api · security\n`);break;
+      console.log(`\n${c.bold}🌉 Bifrost Harness Engineering v${VERSION}${c.reset}\n\nnpx harness-engineering               Instala o Bifrost (projeto novo)\nnpx harness-engineering adopt         Detecta stack e adota em projeto existente\nnpx harness-engineering skill <nome>  Instala uma skill\nnpx harness-engineering skill --bundle <bundle>\nnpx harness-engineering skill --list   Lista disponíveis\nnpx harness-engineering check          Verifica integridade\nnpx harness-engineering stats          Exibe métricas do harness\nnpx harness-engineering doctor         Diagnóstico do ambiente (Node, Python, Git, harness)\nnpx harness-engineering upgrade        Verifica atualizações disponíveis\nnpx harness-engineering upgrade --force Aplica atualização, preserva customizações\nnpx harness-engineering setup-hooks    Configura hook git global para auto-save de sessão\n\n${c.bold}Bundles:${c.reset} essentials · saas · api · security\n`);break;
     default: await cmdInstall();
   }
 })();

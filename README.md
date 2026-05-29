@@ -65,7 +65,14 @@ npx harness-engineering check
 
 # Ver métricas do projeto
 npx harness-engineering stats
+
+# Configurar auto-save de sessão (uma vez por computador)
+npx harness-engineering setup-hooks
 ```
+
+> Após configurar, `.harness/memory/last-session.json` é atualizado
+> automaticamente a cada `git commit` em qualquer projeto com Bifrost.
+> Funciona em Windows, Mac e Linux.
 
 Exemplo de output do `stats`:
 ```
@@ -104,7 +111,7 @@ Para atualizar: npx harness-engineering@latest upgrade --force
 | | Harness | CLI |
 |---|---|---|
 | **O que é** | Arquivos copiados para seu projeto | Instalador e utilitários |
-| **Versão atual** | v1.7.0 | v2.9.0 |
+| **Versão atual** | v1.7.0 | v3.0.0 |
 | **Onde vive** | Dentro do seu projeto | npm global |
 | **Como atualizar** | `git pull` + `sync-harness.py` | `npx harness-engineering upgrade` |
 
