@@ -1,6 +1,6 @@
 {
   "$schema": "https://raw.githubusercontent.com/JRoberto1/harness-template/main/.harness/config.schema.json",
-  "version": "1.4.0",
+  "version": "1.7.0",
 
   "protected_paths": [
     ".env",

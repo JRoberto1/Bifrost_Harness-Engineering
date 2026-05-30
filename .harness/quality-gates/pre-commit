@@ -1,6 +1,6 @@
 #!/bin/bash
 # ============================================================
-# Bifrost Quality Gate — Pre-commit Hook v1.4.0
+# Bifrost Quality Gate — Pre-commit Hook v1.7.0
 # Lê .harness/config.json para protected_paths
 # ============================================================
 set -e
@@ -15,7 +15,7 @@ pass() { echo -e "${GREEN}✓ $1${NC}"; }
 STAGED=$(git diff --cached --name-only --diff-filter=ACM)
 [ -z "$STAGED" ] && exit 0
 
-echo -e "${BOLD}🌉 Bifrost Quality Gate v1.4.0${NC}"
+echo -e "${BOLD}🌉 Bifrost Quality Gate v1.7.0${NC}"
 echo "================================"
 
 # 1. Protected paths (do .harness/config.json)

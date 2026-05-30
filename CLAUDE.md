@@ -1,6 +1,6 @@
 # CLAUDE.md — Bifrost Universal Harness
 <!-- Runtime: Claude Code -->
-<!-- Versão: 1.4.0 -->
+<!-- Versão: 1.7.0 -->
 
 > Leia este arquivo completamente antes de qualquer ação.
 > Este arquivo é específico para Claude Code — para outros runtimes use GEMINI.md ou AGENTS.md.
@@ -251,4 +251,4 @@ Referência: `directives/harness-evolution.md`
 
 ---
 
-*Bifrost v1.4.0 — Claude Code*
+*Bifrost v1.7.0 — Claude Code*

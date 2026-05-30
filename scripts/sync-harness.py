@@ -19,7 +19,7 @@ GEMINI_PATH = ROOT / "GEMINI.md"
 AGENTS_HEADER = """\
 # AGENTS.md — Bifrost Universal Harness
 <!-- Claude Code · Antigravity · OpenCode · Cursor · Copilot -->
-<!-- Versão: 1.4.0 -->
+<!-- Versão: 1.7.0 -->
 
 > Leia este arquivo completamente antes de qualquer ação.
 > Arquivo universal — lido por qualquer runtime.
@@ -59,14 +59,14 @@ AGENTS_SESSION = """\
 
 ---"""
 
-AGENTS_FOOTER = "*Bifrost v1.4.0 — Universal*"
+AGENTS_FOOTER = "*Bifrost v1.7.0 — Universal*"
 
 # ── Blocos de substituição por runtime ───────────────────────────────────────
 
 CLAUDE_HEADER = """\
 # CLAUDE.md — Bifrost Universal Harness
 <!-- Runtime: Claude Code -->
-<!-- Versão: 1.4.0 -->
+<!-- Versão: 1.7.0 -->
 
 > Leia este arquivo completamente antes de qualquer ação.
 > Este arquivo é específico para Claude Code — para outros runtimes use GEMINI.md ou AGENTS.md."""
@@ -95,12 +95,12 @@ Comandos disponíveis: `/wrap-session` · `/brief-session` · `/context-check`
 
 ---"""
 
-CLAUDE_FOOTER = "*Bifrost v1.4.0 — Claude Code*"
+CLAUDE_FOOTER = "*Bifrost v1.7.0 — Claude Code*"
 
 GEMINI_HEADER = """\
 # GEMINI.md — Bifrost Universal Harness
 <!-- Runtime: Antigravity · Gemini CLI · OpenCode -->
-<!-- Versão: 1.4.0 -->
+<!-- Versão: 1.7.0 -->
 
 > Leia este arquivo completamente antes de qualquer ação.
 > Este arquivo é específico para Antigravity e runtimes baseados em Gemini.
@@ -141,7 +141,7 @@ em .harness/memory/last-session.json seguindo o template da directive.
 
 ---"""
 
-GEMINI_FOOTER = "*Bifrost v1.4.0 · runtime: Gemini / Antigravity*"
+GEMINI_FOOTER = "*Bifrost v1.7.0 · runtime: Gemini / Antigravity*"
 
 
 # ── Geração ──────────────────────────────────────────────────────────────────

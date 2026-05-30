@@ -27,7 +27,7 @@ Gerado por `/wrap-session` (Claude Code) ou manualmente com base em `directives/
   "session_id": "2026-05-27T20:00:00Z",
   "timestamp": "2026-05-27T20:45:00Z",
   "runtime": "claude-code",
-  "harness_version": "1.4.0",
+  "harness_version": "1.7.0",
   "task_summary": "Sprint 3: sync canônico, taxonomia Hashimoto e session schema",
   "context_level_at_close": "L1",
   "open_items": [],

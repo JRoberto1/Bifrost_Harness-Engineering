@@ -17,7 +17,7 @@ DIRECTIVES_DIR = Path(__file__).parent.parent / "directives"
 INDEX_PATH = Path(__file__).parent.parent / ".harness" / "index.md"
 
 HEADER = """<!-- AUTO-GERADO por scripts/build-harness.py — NÃO EDITE MANUALMENTE -->
-<!-- v1.4.0 -->
+<!-- v1.7.0 -->
 
 # Bifrost — Índice de Directives
 

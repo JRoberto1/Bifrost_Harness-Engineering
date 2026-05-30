@@ -77,11 +77,11 @@ npx harness-engineering setup-hooks
 Exemplo de output do `stats`:
 ```
 ─────────────────────────────────
-  Bifrost v1.4.0 — Stats
+  Bifrost v1.7.0 — Stats
 ─────────────────────────────────
-  Directives:     9 carregadas
+  Directives:     18 carregadas
   Runtime:        Claude Code (CLAUDE.md)
-  Último sync:    2025-05-27
+  Último sync:    2026-05-28
   Sessões:        3 registradas
   Harness:        ✓ íntegro
 ─────────────────────────────────
@@ -284,9 +284,9 @@ Quando o agente cometer um erro:
 
 ### Harness v1.7.0 — atual
 
-- ✨ `directives/architecture.md` — ADRs e decisões arquiteturais (formato padrão, quando usar monolito vs microsserviços)
-- ✨ `directives/onboarding.md` — integração de novos desenvolvedores (Dia 1 → Semana 1 → Mês 1)
-- ✨ `skills/performance-audit` — auditoria de performance web (Core Web Vitals) e API
+- ✨ `directives/architecture.md` — ADRs e decisões arquiteturais
+- ✨ `directives/onboarding.md` — integração de novos desenvolvedores
+- ✨ `skills/performance-audit` — auditoria de performance web e API
 - ✨ `skills/accessibility` — checklist WCAG 2.1 AA completo
 - ✨ 16 directives total instaladas pelo CLI (era 14)
 
@@ -294,22 +294,20 @@ Quando o agente cometer um erro:
 
 - ✨ `directives/architecture.md` e `directives/onboarding.md` bundladas
 - ✨ `skills/performance-audit` e `skills/accessibility` adicionadas
-- 🔧 Bundles atualizados: `essentials` + `api` com `performance-audit`, `saas` com `accessibility`
 
 ### Harness v1.6.0
 
-### CLI v2.8.0
-
-- ✨ `directives/mobile.md` e `directives/data-science.md` bundladas no pacote npm
-- ✨ 14 directives instaladas por `npx harness-engineering` (era 12)
-- 🔧 `INDEX_MD` atualizado com as 2 novas directives
+- ✨ `directives/code-review.md` — protocolo de revisão em 5 camadas
+- ✨ `directives/refactoring.md` — protocolo de refatoração segura
+- ✨ `directives/mobile.md` — React Native e Flutter
+- ✨ `directives/data-science.md` — análise reproduzível e ML
 
 ### Harness v1.5.0
 
-- ✨ `directives/testing.md` e `directives/deployment.md` bundladas no pacote npm
-- ✨ 10 directives instaladas por `npx harness-engineering` (era 8)
-- ✨ `INDEX_MD` atualizado com as 2 novas directives
-- 🔧 `ROADMAP.md` — v1.5.0 fechado, v2.1.0–v2.6.0 consolidados
+- ✨ Sistema de skills funcional — instalar via `npx harness-engineering skill`
+- ✨ 8+ skills reais incluídas no pacote npm
+- ✨ `directives/testing.md` e `directives/deployment.md` bundladas
+- ✨ Taxonomia Hashimoto — 5 tipos (A–E) com protocolo de correção
 
 ### Harness v1.4.0
 
