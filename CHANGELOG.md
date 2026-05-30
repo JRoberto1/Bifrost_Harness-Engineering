@@ -5,7 +5,41 @@ Formato: [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.0/)
 
 ---
 
-## [v1.4.0] — atual
+## [v1.7.0] — atual
+
+### Adicionado
+- Directive `architecture.md` — decisões arquiteturais e ADRs
+- Directive `onboarding.md` — integrar novo desenvolvedor ao projeto
+- Skill `performance-audit` — auditoria de performance web e API
+- Skill `accessibility` — checklist WCAG 2.1 AA completo
+- 16 directives total instaladas pelo CLI
+
+---
+
+## [v1.6.0]
+
+### Adicionado
+- Directive `code-review.md` — protocolo de revisão em 5 camadas
+- Directive `refactoring.md` — protocolo de refatoração segura
+- Directive `mobile.md` — suporte a React Native e Flutter
+- Directive `data-science.md` — análise reproduzível e ML
+
+---
+
+## [v1.5.0]
+
+### Adicionado
+- Sistema de skills funcional — instalar via `npx harness-engineering skill`
+- 8+ skills reais incluídas no pacote npm
+- Directive `testing.md` — protocolos de TDD e cobertura mínima
+- Directive `deployment.md` — checklist de deploy por plataforma
+- Taxonomia Hashimoto — 5 tipos (A–E) com protocolo de correção
+- Consolidação do Protocolo PEV em todos os arquivos (substituindo DOE em partes do projeto)
+- Transição de `last-session.md` para `last-session.json`
+
+---
+
+## [v1.4.0]
 
 ### Adicionado
 - Identidade **Bifrost** — nome e posicionamento definitivos

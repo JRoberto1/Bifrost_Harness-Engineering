@@ -1,6 +1,6 @@
 # AGENTS.md — Bifrost Universal Harness
 <!-- Claude Code · Antigravity · OpenCode · Cursor · Copilot -->
-<!-- Versão: 1.4.0 -->
+<!-- Versão: 1.7.0 -->
 
 > Leia este arquivo completamente antes de qualquer ação.
 > Arquivo universal — lido por qualquer runtime.
@@ -262,4 +262,4 @@ Referência: `directives/harness-evolution.md`
 
 ---
 
-*Bifrost v1.4.0 — Universal*
+*Bifrost v1.7.0 — Universal*
