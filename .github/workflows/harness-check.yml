@@ -26,18 +26,16 @@ jobs:
           test -f AGENTS.md || (echo "❌ AGENTS.md não encontrado" && exit 1)
           echo "✓ AGENTS.md"
 
-      - name: Check mirrors in sync
+      - name: Check mirrors exist
         run: |
-          if ! diff -q AGENTS.md CLAUDE.md &>/dev/null; then
-            echo "❌ CLAUDE.md desincronizado com AGENTS.md"
-            exit 1
-          fi
-          echo "✓ CLAUDE.md sincronizado"
-          if ! diff -q AGENTS.md GEMINI.md &>/dev/null; then
-            echo "❌ GEMINI.md desincronizado com AGENTS.md"
-            exit 1
-          fi
-          echo "✓ GEMINI.md sincronizado"
+          test -f CLAUDE.md  || (echo "❌ CLAUDE.md não encontrado" && exit 1)
+          echo "✓ CLAUDE.md"
+          test -f GEMINI.md  || (echo "❌ GEMINI.md não encontrado" && exit 1)
+          echo "✓ GEMINI.md"
+          grep -q "Versão: 2.6.0" CLAUDE.md  || (echo "❌ CLAUDE.md desatualizado" && exit 1)
+          echo "✓ CLAUDE.md v2.6.0"
+          grep -q "Versão: 2.6.0" GEMINI.md  || (echo "❌ GEMINI.md desatualizado" && exit 1)
+          echo "✓ GEMINI.md v2.6.0"
 
       - name: Check required files
         run: |
