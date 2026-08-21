@@ -1,13 +1,3 @@
----
-id: spec-driven
-version: 1.0.0
-triggers: ["spec", "especificação", "antes de código", "requisitos", "feature", "escopo"]
-domain: universal
-estimated_tokens: 500
-compatible_runtimes: [claude-code, antigravity, opencode, cursor]
-last_updated: 2026-05-28
----
-
 # Directive: Spec-Driven Development
 
 ## Objetivo

@@ -22,7 +22,7 @@ escreva os testes ANTES de refatorar.
 
 ## Quando Refatorar
 
-### Refatore agora
+### Reforate agora
 - Função com mais de 40 linhas fazendo coisas diferentes
 - Nome que não descreve o que faz
 - Lógica duplicada em dois ou mais lugares

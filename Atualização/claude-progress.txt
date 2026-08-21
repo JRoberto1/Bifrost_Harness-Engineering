@@ -1,0 +1,32 @@
+# Progress: [Nome do Projeto / Feature]
+Iniciado: [data] | Atualizado: [data] | Sessões: 0
+
+> Este arquivo sobrevive à rotação de sessões e está vinculado ao git.
+> Atualizado automaticamente pelo agente a cada commit ou tarefa concluída.
+> Para contexto de conversa, veja: .harness/memory/last-session.md
+
+---
+
+## ✅ Entregue
+<!-- O que já foi commitado e funciona -->
+- (nenhum ainda)
+
+## 🔄 Em Andamento
+<!-- O que está sendo feito agora — onde exatamente parou -->
+- (nenhum ainda)
+
+## ⏳ Próximo
+<!-- Próximas tarefas em ordem de prioridade -->
+- (nenhum ainda)
+
+## 🚧 Bloqueios
+<!-- O que está impedindo progresso e o que precisa para desbloquear -->
+- (nenhum)
+
+---
+
+## Histórico de Sessões
+<!-- Linha por sessão — data · o que foi feito · commit hash -->
+| Data | O que foi feito | Commit |
+|------|----------------|--------|
+| — | — | — |
