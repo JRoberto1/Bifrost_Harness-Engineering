@@ -1,6 +1,6 @@
 # CLAUDE.md — Bifrost Universal Harness
 <!-- Runtime: Claude Code -->
-<!-- Versão: 2.6.0 -->
+<!-- Versão: 3.0.1 -->
 
 > Leia este arquivo completamente antes de qualquer ação.
 > Específico para Claude Code — para outros runtimes use GEMINI.md ou AGENTS.md.
@@ -234,4 +234,4 @@ python execution/handoff.py --restore
 
 ---
 
-*Bifrost v2.6.0 — Claude Code*
+*Bifrost v3.0.1 — Claude Code*

@@ -1,14 +1,14 @@
 {
   "$schema": "https://bifrost.harness/session-schema/v1",
-  "session_id": "2026-08-21T13:51:27Z",
-  "timestamp": "2026-08-21T13:51:27Z",
+  "session_id": "2026-08-22T21:43:32Z",
+  "timestamp": "2026-08-22T21:43:32Z",
   "runtime": "claude-code",
   "harness_version": "unknown",
-  "task_summary": "feat: adiciona regression cases, issue templates e failure-taxonomy",
+  "task_summary": "chore: bump VERSION e cli.js para 3.0.1",
   "context_level_at_close": "L2",
   "open_items": [],
   "decisions_made": [],
-  "files_modified": [".github/ISSUE_TEMPLATE/bug_report.md",".github/ISSUE_TEMPLATE/feature_request.md",".harness/tests/README.md",".harness/tests/context/DEP-001.md",".harness/tests/context/DS-001.md",".harness/tests/context/DS-002.md",".harness/tests/context/SEC-001.md","directives/failure-taxonomy.md"],
+  "files_modified": [".harness/VERSION","harness-template/harness-npm/bin/cli.js"],
   "next_action": "Continuar desenvolvimento — ver último commit para contexto",
   "hashimoto_events": []
 }

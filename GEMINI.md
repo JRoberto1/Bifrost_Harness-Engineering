@@ -1,6 +1,6 @@
 # GEMINI.md — Bifrost Universal Harness
 <!-- Runtime: Antigravity · Gemini CLI · OpenCode -->
-<!-- Versão: 2.6.0 -->
+<!-- Versão: 3.0.1 -->
 
 > Leia este arquivo antes de qualquer ação.
 > Específico para Antigravity e runtimes Gemini.
@@ -238,4 +238,4 @@ Salve em .harness/memory/last-session.md.
 
 ---
 
-*Bifrost v2.6.0 — Antigravity / Gemini*
+*Bifrost v3.0.1 — Antigravity / Gemini*

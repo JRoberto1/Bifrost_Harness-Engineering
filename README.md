@@ -17,7 +17,7 @@
 
 [![npm](https://img.shields.io/npm/v/harness-engineering?style=flat-square&color=000)](https://www.npmjs.com/package/harness-engineering)
 [![MIT](https://img.shields.io/badge/license-MIT-blue?style=flat-square)](LICENSE)
-[![v2.6.0](https://img.shields.io/badge/versão-2.6.0-purple?style=flat-square)](#changelog)
+[![v3.0.1](https://img.shields.io/badge/versão-3.0.1-purple?style=flat-square)](#changelog)
 [![runtimes](https://img.shields.io/badge/runtimes-Claude%20Code%20%7C%20Antigravity%20%7C%20OpenCode-green?style=flat-square)](#compatibilidade)
 
 </div>
@@ -302,6 +302,14 @@ npx harness-engineering skill --list
 ---
 
 ## Changelog
+
+### v3.0.1
+- ✨ Token Filter semântico no .harness/index.md
+- ✨ Regression cases A/B/C/D/E/U
+- ✨ Failure Taxonomy formal
+- ✨ .harness/tests/ com casos DS-001, DS-002, DEP-001, SEC-001
+- ✨ CONTRIBUTING.md com convenção de commits semânticos
+- ✨ npm publicado como v3.0.1
 
 ### v2.6.0
 - ✨ Auto-Hashimoto no pre-commit — self-correction.py roda a cada commit

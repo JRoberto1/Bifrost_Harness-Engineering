@@ -1,6 +1,6 @@
 # AGENTS.md — Bifrost Universal Harness
 <!-- Claude Code · Antigravity · OpenCode · Cursor · Copilot -->
-<!-- Versão: 2.6.0 -->
+<!-- Versão: 3.0.1 -->
 
 > Leia este arquivo completamente antes de qualquer ação.
 > Arquivo universal — lido por qualquer runtime.
