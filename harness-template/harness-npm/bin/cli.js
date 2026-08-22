@@ -9,7 +9,7 @@ const path = require("path");
 const https = require("https");
 const readline = require("readline");
 
-const VERSION = "3.0.0";
+const VERSION = "3.0.1";
 const TARGET  = process.cwd();
 
 const c = {
