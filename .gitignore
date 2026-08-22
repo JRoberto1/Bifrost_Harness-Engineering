@@ -39,3 +39,4 @@ venv/
 logs/
 
 Atualização/
+.claude/worktrees/
