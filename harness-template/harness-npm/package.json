@@ -1,6 +1,6 @@
 {
   "name": "harness-engineering",
-  "version": "3.0.1",
+  "version": "3.1.0",
   "description": "Bifrost — Harness Engineering universal. Um comando. Qualquer runtime. Zero infraestrutura.",
   "bin": {
     "harness-engineering": "bin/cli.js"
